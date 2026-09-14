@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="24" fill="#A9D39E"/>
+  <!-- Head outline -->
+  <ellipse cx="100" cy="85" rx="50" ry="55" fill="#fff"/>
+  <!-- Hair -->
+  <path d="M50,75 Q52,28 100,25 Q148,28 150,75 Q145,50 100,45 Q55,50 50,75Z" fill="#5C3D2E"/>
+  <!-- Eyes -->
+  <ellipse cx="80" cy="80" rx="7" ry="8" fill="#333"/>
+  <ellipse cx="120" cy="80" rx="7" ry="8" fill="#333"/>
+  <!-- Eye highlights -->
+  <circle cx="82" cy="77" r="2.5" fill="#fff"/>
+  <circle cx="122" cy="77" r="2.5" fill="#fff"/>
+  <!-- Nose -->
+  <path d="M97,92 Q100,100 103,92" stroke="#A9D39E" stroke-width="2" fill="none"/>
+  <!-- Smile -->
+  <path d="M85,108 Q100,122 115,108" stroke="#333" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- Ears -->
+  <ellipse cx="52" cy="85" rx="10" ry="14" fill="#fff" stroke="#A9D39E" stroke-width="2"/>
+  <ellipse cx="148" cy="85" rx="10" ry="14" fill="#fff" stroke="#A9D39E" stroke-width="2"/>
+  <!-- Label -->
+  <text x="100" y="175" font-family="Arial,sans-serif" font-size="18" font-weight="900" fill="#fff" text-anchor="middle">HEAD</text>
+</svg>

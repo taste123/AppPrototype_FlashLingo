@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="24" fill="#E76F51"/>
+  <!-- House body -->
+  <rect x="45" y="80" width="110" height="85" rx="4" fill="#fff"/>
+  <!-- Roof -->
+  <polygon points="30,85 100,35 170,85" fill="#fff"/>
+  <!-- Door -->
+  <rect x="85" y="115" width="30" height="50" rx="3" fill="#E76F51"/>
+  <circle cx="108" cy="142" r="3" fill="#fff"/>
+  <!-- Window left -->
+  <rect x="55" y="100" width="22" height="22" rx="2" fill="#7FB6D8"/>
+  <line x1="66" y1="100" x2="66" y2="122" stroke="#fff" stroke-width="1.5"/>
+  <line x1="55" y1="111" x2="77" y2="111" stroke="#fff" stroke-width="1.5"/>
+  <!-- Window right -->
+  <rect x="123" y="100" width="22" height="22" rx="2" fill="#7FB6D8"/>
+  <line x1="134" y1="100" x2="134" y2="122" stroke="#fff" stroke-width="1.5"/>
+  <line x1="123" y1="111" x2="145" y2="111" stroke="#fff" stroke-width="1.5"/>
+  <!-- Chimney -->
+  <rect x="130" y="45" width="16" height="30" fill="#fff"/>
+  <!-- Sun -->
+  <circle cx="160" cy="50" r="15" fill="#F4A261"/>
+  <line x1="160" y1="28" x2="160" y2="22" stroke="#F4A261" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="160" y1="72" x2="160" y2="78" stroke="#F4A261" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="138" y1="50" x2="132" y2="50" stroke="#F4A261" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="182" y1="50" x2="188" y2="50" stroke="#F4A261" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Ground -->
+  <rect x="30" y="165" width="140" height="6" rx="3" fill="#4ADE80"/>
+</svg>

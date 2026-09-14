@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="24" fill="#2A9D8F"/>
+  <!-- Clock face -->
+  <circle cx="100" cy="105" r="60" fill="#fff"/>
+  <circle cx="100" cy="105" r="55" fill="none" stroke="#2A9D8F" stroke-width="3"/>
+  <!-- Hour markers -->
+  <text x="100" y="62" font-family="Arial,sans-serif" font-size="14" font-weight="900" fill="#2A9D8F" text-anchor="middle">12</text>
+  <text x="143" y="109" font-family="Arial,sans-serif" font-size="14" font-weight="900" fill="#2A9D8F" text-anchor="middle">3</text>
+  <text x="100" y="156" font-family="Arial,sans-serif" font-size="14" font-weight="900" fill="#2A9D8F" text-anchor="middle">6</text>
+  <text x="57" y="109" font-family="Arial,sans-serif" font-size="14" font-weight="900" fill="#2A9D8F" text-anchor="middle">9</text>
+  <!-- Small markers -->
+  <circle cx="122" cy="67" r="2.5" fill="#2A9D8F"/>
+  <circle cx="138" cy="83" r="2.5" fill="#2A9D8F"/>
+  <circle cx="138" cy="127" r="2.5" fill="#2A9D8F"/>
+  <circle cx="122" cy="143" r="2.5" fill="#2A9D8F"/>
+  <circle cx="78" cy="143" r="2.5" fill="#2A9D8F"/>
+  <circle cx="62" cy="127" r="2.5" fill="#2A9D8F"/>
+  <circle cx="62" cy="83" r="2.5" fill="#2A9D8F"/>
+  <circle cx="78" cy="67" r="2.5" fill="#2A9D8F"/>
+  <!-- Hour hand (pointing to ~10) -->
+  <line x1="100" y1="105" x2="78" y2="78" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+  <!-- Minute hand (pointing to 2) -->
+  <line x1="100" y1="105" x2="130" y2="82" stroke="#E76F51" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Center dot -->
+  <circle cx="100" cy="105" r="4" fill="#333"/>
+  <!-- Alarm bells -->
+  <circle cx="68" cy="48" r="10" fill="#F4A261"/>
+  <circle cx="132" cy="48" r="10" fill="#F4A261"/>
+  <rect x="92" y="38" width="16" height="10" rx="3" fill="#F4A261"/>
+  <!-- Time label -->
+  <text x="100" y="185" font-family="Arial,sans-serif" font-size="14" font-weight="900" fill="#fff" text-anchor="middle">TIME</text>
+</svg>
