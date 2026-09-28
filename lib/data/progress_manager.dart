@@ -7,15 +7,20 @@ class ProgressManager {
   static const String levelScoresKey = 'flashlingo_level_scores';
 
   final SharedPreferences _prefs;
+  late List<String> _cachedCompletedLevels;
+  late Map<String, int> _cachedLevelScores;
 
-  ProgressManager(this._prefs);
+  ProgressManager(this._prefs) {
+    _cachedCompletedLevels = _loadCompletedLevels();
+    _cachedLevelScores = _loadLevelScores();
+  }
 
   static Future<ProgressManager> init() async {
     final prefs = await SharedPreferences.getInstance();
     return ProgressManager(prefs);
   }
 
-  List<String> getCompletedLevels() {
+  List<String> _loadCompletedLevels() {
     final str = _prefs.getString(progressKey);
     if (str == null) return [];
     try {
@@ -25,7 +30,7 @@ class ProgressManager {
     }
   }
 
-  Map<String, int> getLevelScores() {
+  Map<String, int> _loadLevelScores() {
     final str = _prefs.getString(levelScoresKey);
     if (str == null) return {};
     try {
@@ -36,33 +41,41 @@ class ProgressManager {
     }
   }
 
+  List<String> getCompletedLevels() {
+    return List.unmodifiable(_cachedCompletedLevels);
+  }
+
+  Map<String, int> getLevelScores() {
+    return Map.unmodifiable(_cachedLevelScores);
+  }
+
   int getLevelScore(String categoryId) {
-    return getLevelScores()[categoryId] ?? 0;
+    return _cachedLevelScores[categoryId] ?? 0;
   }
 
   bool hasStoredLevelScore(String categoryId) {
-    return getLevelScores().containsKey(categoryId);
+    return _cachedLevelScores.containsKey(categoryId);
   }
 
   bool hasPassedLevel(String categoryId) {
     if (getLevelScore(categoryId) >= 7) return true;
-    return getCompletedLevels().contains(categoryId) && !hasStoredLevelScore(categoryId);
+    return _cachedCompletedLevels.contains(categoryId) && !hasStoredLevelScore(categoryId);
   }
 
   Future<void> markLevelCompleted(String categoryId, int score) async {
     if (score < 7) return;
-    final completed = getCompletedLevels();
-    if (!completed.contains(categoryId)) {
-      completed.add(categoryId);
-      await _prefs.setString(progressKey, jsonEncode(completed));
+    if (!_cachedCompletedLevels.contains(categoryId)) {
+      _cachedCompletedLevels.add(categoryId);
+      await _prefs.setString(progressKey, jsonEncode(_cachedCompletedLevels));
     }
   }
 
   Future<void> saveLevelScore(String categoryId, int score) async {
-    final scores = getLevelScores();
-    final currentScore = scores[categoryId] ?? 0;
-    scores[categoryId] = score > currentScore ? score : currentScore;
-    await _prefs.setString(levelScoresKey, jsonEncode(scores));
+    final currentScore = _cachedLevelScores[categoryId] ?? 0;
+    if (score > currentScore) {
+      _cachedLevelScores[categoryId] = score;
+      await _prefs.setString(levelScoresKey, jsonEncode(_cachedLevelScores));
+    }
   }
 
   int starsFromScore(int score) {

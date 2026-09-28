@@ -197,85 +197,106 @@ class _QuizScreenState extends State<QuizScreen> {
     final passed = _score >= 7;
 
     return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
       child: Container(
         color: const Color(0xFF1F2937).withAlpha(120),
         alignment: Alignment.center,
         padding: const EdgeInsets.all(24),
-        child: Container(
-          width: 310,
-          padding: const EdgeInsets.all(26),
-          decoration: BoxDecoration(
-            color: Colors.white.withAlpha(245),
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: Colors.white, width: 4),
-            boxShadow: const [
-              BoxShadow(
-                color: Color.fromRGBO(31, 41, 55, 0.3),
-                offset: Offset(0, 14),
-                blurRadius: 28,
-              ),
-            ],
+        child: TweenAnimationBuilder<double>(
+          tween: Tween<double>(begin: 0.5, end: 1.0),
+          duration: const Duration(milliseconds: 550),
+          curve: Curves.elasticOut,
+          builder: (context, scale, child) => Transform.scale(
+            scale: scale,
+            child: child,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(3, (index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Icon(
-                      Icons.star_rounded,
-                      size: 44,
-                      color: index < stars
-                          ? const Color(0xFFFFC93C)
-                          : const Color(0xFFE4E8EE),
-                    ),
-                  );
-                }),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'SCORE',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF4B5563),
-                  letterSpacing: 1.2,
+          child: Container(
+            width: 310,
+            padding: const EdgeInsets.all(26),
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(245),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: Colors.white, width: 4),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color.fromRGBO(31, 41, 55, 0.3),
+                  offset: Offset(0, 14),
+                  blurRadius: 28,
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '$_score / 9',
-                style: const TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF1F2937),
-                  letterSpacing: -0.5,
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(3, (index) {
+                    final isEarned = index < stars;
+                    return TweenAnimationBuilder<double>(
+                      tween: Tween<double>(begin: 0.0, end: 1.0),
+                      duration: Duration(milliseconds: 400 + (index * 180)),
+                      curve: Curves.elasticOut,
+                      builder: (context, starScale, child) {
+                        return Transform.scale(
+                          scale: starScale,
+                          child: child,
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Icon(
+                          Icons.star_rounded,
+                          size: 46,
+                          color: isEarned
+                              ? const Color(0xFFFFC93C)
+                              : const Color(0xFFE4E8EE),
+                        ),
+                      ),
+                    );
+                  }),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                passed
-                    ? 'Great job! You earned $stars star${stars == 1 ? '' : 's'}.'
-                    : 'Good try! Score 7 to earn a star. 💪',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF4B5563),
+                const SizedBox(height: 12),
+                const Text(
+                  'SCORE',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF4B5563),
+                    letterSpacing: 1.2,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              ChunkButton(
-                text: 'Continue',
-                onPressed: () {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                },
-                backgroundColor: _catColor,
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  '$_score / 9',
+                  style: const TextStyle(
+                    fontSize: 34,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF1F2937),
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  passed
+                      ? 'Great job! You earned $stars star${stars == 1 ? '' : 's'}. 🎉'
+                      : 'Good try! Score 7 to earn a star. 💪',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF4B5563),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ChunkButton(
+                  text: 'Continue',
+                  onPressed: () {
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  },
+                  backgroundColor: _catColor,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -397,16 +418,35 @@ class _DragGameState extends State<_DragGame> {
                 onAcceptWithDetails: (details) =>
                     _handleMatch(target, details.data),
                 builder: (context, candidateData, rejectedData) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: widget.catColor,
-                      borderRadius: BorderRadius.circular(16),
-                      border: isMatched
-                          ? Border.all(color: Colors.green, width: 3)
-                          : Border.all(color: Colors.white, width: 3),
+                  return TweenAnimationBuilder<double>(
+                    key: ValueKey('matched_${target.en}_$isMatched'),
+                    tween: Tween<double>(begin: isMatched ? 0.8 : 1.0, end: 1.0),
+                    duration: const Duration(milliseconds: 350),
+                    curve: Curves.elasticOut,
+                    builder: (context, scale, child) => Transform.scale(
+                      scale: scale,
+                      child: child,
                     ),
-                    padding: const EdgeInsets.all(6),
-                    child: _buildImage(target.img),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: widget.catColor,
+                        borderRadius: BorderRadius.circular(16),
+                        border: isMatched
+                            ? Border.all(color: const Color(0xFF4CAF50), width: 4)
+                            : Border.all(color: Colors.white, width: 3),
+                        boxShadow: isMatched
+                            ? const [
+                                BoxShadow(
+                                  color: Color(0x664CAF50),
+                                  blurRadius: 10,
+                                  offset: Offset(0, 4),
+                                ),
+                              ]
+                            : null,
+                      ),
+                      padding: const EdgeInsets.all(6),
+                      child: _buildImage(target.img),
+                    ),
                   );
                 },
               );
@@ -432,9 +472,12 @@ class _DragGameState extends State<_DragGame> {
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: Draggable<VocabItem>(
                       data: item,
-                      feedback: _buildTrayChip(item),
+                      feedback: Transform.scale(
+                        scale: 1.1,
+                        child: _buildTrayChip(item),
+                      ),
                       childWhenDragging: Opacity(
-                        opacity: 0.3,
+                        opacity: 0.25,
                         child: _buildTrayChip(item),
                       ),
                       child: _buildTrayChip(item),
@@ -506,6 +549,7 @@ class _ScrambleGameState extends State<_ScrambleGame> {
   late List<String> _letters;
   late List<bool> _used;
   late List<int> _answerSlots;
+  late List<GlobalKey<ShakeWidgetState>> _letterShakeKeys;
 
   @override
   void initState() {
@@ -517,13 +561,15 @@ class _ScrambleGameState extends State<_ScrambleGame> {
 
   void _initRound() {
     _missedOnce = false;
-    _targetWord = _rounds[_currentRound].en.toUpperCase();
+    _targetWord = _rounds[_currentRound].en.toUpperCase().replaceAll(RegExp(r'[\s\-_]'), '');
     _letters = _targetWord.split('')..shuffle();
     while (_letters.join('') == _targetWord && _targetWord.length > 1) {
       _letters.shuffle();
     }
     _used = List.filled(_letters.length, false);
     _answerSlots = [];
+    _letterShakeKeys =
+        List.generate(_letters.length, (_) => GlobalKey<ShakeWidgetState>());
   }
 
   void _shuffleUnused() {
@@ -565,6 +611,7 @@ class _ScrambleGameState extends State<_ScrambleGame> {
       if (_answerSlots.length == _targetWord.length) {
         if (!_missedOnce) _firstTryCount++;
         Future.delayed(const Duration(milliseconds: 600), () {
+          if (!mounted) return;
           if (_currentRound < _rounds.length - 1) {
             setState(() {
               _currentRound++;
@@ -576,6 +623,9 @@ class _ScrambleGameState extends State<_ScrambleGame> {
         });
       }
     } else {
+      if (index < _letterShakeKeys.length) {
+        _letterShakeKeys[index].currentState?.shake();
+      }
       setState(() {
         _missedOnce = true;
         widget.onMistake();
@@ -677,32 +727,42 @@ class _ScrambleGameState extends State<_ScrambleGame> {
               final hasLetter = i < _answerSlots.length;
               return GestureDetector(
                 onTap: hasLetter ? () => _undoSlot(i) : null,
-                child: Container(
-                  width: 44,
-                  height: 52,
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  decoration: BoxDecoration(
-                    color: hasLetter ? widget.catColor : Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: hasLetter ? Colors.white : widget.catColor,
-                      width: 2.5,
-                    ),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color.fromRGBO(31, 41, 55, 0.1),
-                        offset: Offset(0, 3),
-                        blurRadius: 6,
-                      ),
-                    ],
+                child: TweenAnimationBuilder<double>(
+                  key: ValueKey('slot_${i}_${hasLetter ? _letters[_answerSlots[i]] : 'empty'}'),
+                  tween: Tween<double>(begin: hasLetter ? 0.7 : 1.0, end: 1.0),
+                  duration: const Duration(milliseconds: 260),
+                  curve: Curves.elasticOut,
+                  builder: (context, scale, child) => Transform.scale(
+                    scale: scale,
+                    child: child,
                   ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    hasLetter ? _letters[_answerSlots[i]] : '',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
+                  child: Container(
+                    width: 44,
+                    height: 52,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    decoration: BoxDecoration(
+                      color: hasLetter ? widget.catColor : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: hasLetter ? Colors.white : widget.catColor,
+                        width: 2.5,
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color.fromRGBO(31, 41, 55, 0.1),
+                          offset: Offset(0, 3),
+                          blurRadius: 6,
+                        ),
+                      ],
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      hasLetter ? _letters[_answerSlots[i]] : '',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
@@ -718,34 +778,38 @@ class _ScrambleGameState extends State<_ScrambleGame> {
           alignment: WrapAlignment.center,
           children: List.generate(_letters.length, (i) {
             final used = _used[i];
-            return TactileScale(
-              onTap: used ? null : () => _tapLetter(i),
-              disabled: used,
-              pressedScale: 0.9,
-              child: Opacity(
-                opacity: used ? 0.3 : 1.0,
-                child: Container(
-                  width: 48,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: widget.catColor,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white, width: 2.5),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color.fromRGBO(31, 41, 55, 0.18),
-                        offset: Offset(0, 4),
-                        blurRadius: 6,
+            return ShakeWidget(
+              key: i < _letterShakeKeys.length ? _letterShakeKeys[i] : null,
+              shakeOffset: 6.0,
+              child: TactileScale(
+                onTap: used ? null : () => _tapLetter(i),
+                disabled: used,
+                pressedScale: 0.9,
+                child: Opacity(
+                  opacity: used ? 0.3 : 1.0,
+                  child: Container(
+                    width: 48,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: widget.catColor,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white, width: 2.5),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color.fromRGBO(31, 41, 55, 0.18),
+                          offset: Offset(0, 4),
+                          blurRadius: 6,
+                        ),
+                      ],
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      _letters[i],
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
                       ),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    _letters[i],
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -866,6 +930,8 @@ class _PickGameState extends State<_PickGame> {
 
   late List<VocabItem> _options;
   int? _correctPick;
+  final List<GlobalKey<ShakeWidgetState>> _shakeKeys =
+      List.generate(4, (_) => GlobalKey<ShakeWidgetState>());
 
   @override
   void initState() {
@@ -892,7 +958,8 @@ class _PickGameState extends State<_PickGame> {
         _correctPick = index;
         if (!_missedOnce) _firstTryCount++;
       });
-      Future.delayed(const Duration(milliseconds: 700), () {
+      Future.delayed(const Duration(milliseconds: 650), () {
+        if (!mounted) return;
         if (_currentRound < _rounds.length - 1) {
           setState(() {
             _currentRound++;
@@ -903,6 +970,7 @@ class _PickGameState extends State<_PickGame> {
         }
       });
     } else {
+      _shakeKeys[index].currentState?.shake();
       setState(() {
         _missedOnce = true;
         widget.onMistake();
@@ -964,27 +1032,37 @@ class _PickGameState extends State<_PickGame> {
           ),
         ),
         const SizedBox(height: 20),
-        // Prompt Card
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 14),
-          decoration: BoxDecoration(
-            color: widget.catColor,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.white, width: 3.5),
-            boxShadow: const [
-              BoxShadow(
-                color: Color.fromRGBO(31, 41, 55, 0.18),
-                offset: Offset(0, 6),
-                blurRadius: 12,
-              ),
-            ],
+        // Prompt Card with AnimatedSwitcher
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 280),
+          transitionBuilder: (child, anim) => ScaleTransition(
+            scale: Tween<double>(begin: 0.88, end: 1.0).animate(
+              CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
+            ),
+            child: FadeTransition(opacity: anim, child: child),
           ),
-          child: Text(
-            current.en,
-            style: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
+          child: Container(
+            key: ValueKey<String>('prompt_${current.en}'),
+            padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 14),
+            decoration: BoxDecoration(
+              color: widget.catColor,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Colors.white, width: 3.5),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color.fromRGBO(31, 41, 55, 0.18),
+                  offset: Offset(0, 6),
+                  blurRadius: 12,
+                ),
+              ],
+            ),
+            child: Text(
+              current.en,
+              style: const TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+              ),
             ),
           ),
         ),
@@ -1002,31 +1080,39 @@ class _PickGameState extends State<_PickGame> {
             itemCount: _options.length,
             itemBuilder: (context, index) {
               final isCorrect = _correctPick == index;
-              return TactileScale(
-                onTap: () => _tapOption(index),
-                pressedScale: 0.94,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: isCorrect ? Colors.green : Colors.white,
-                      width: 4,
-                    ),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color.fromRGBO(31, 41, 55, 0.18),
-                        offset: Offset(0, 6),
-                        blurRadius: 12,
+              return ShakeWidget(
+                key: _shakeKeys[index],
+                shakeOffset: 6.0,
+                child: TactileScale(
+                  onTap: () => _tapOption(index),
+                  pressedScale: 0.94,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeOut,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: isCorrect ? const Color(0xFF4CAF50) : Colors.white,
+                        width: isCorrect ? 4.5 : 4,
                       ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      color: const Color(0xFF7FB6D8),
-                      padding: const EdgeInsets.all(12),
-                      child: _buildImage(_options[index].img),
+                      boxShadow: [
+                        BoxShadow(
+                          color: isCorrect
+                              ? const Color(0x664CAF50)
+                              : const Color.fromRGBO(31, 41, 55, 0.18),
+                          offset: const Offset(0, 6),
+                          blurRadius: isCorrect ? 16 : 12,
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        color: const Color(0xFF7FB6D8),
+                        padding: const EdgeInsets.all(12),
+                        child: _buildImage(_options[index].img),
+                      ),
                     ),
                   ),
                 ),
@@ -1053,6 +1139,6 @@ Widget _buildImage(String path) {
   } else if (path.endsWith('.svg')) {
     return SvgPicture.asset(path, fit: BoxFit.cover);
   } else {
-    return Image.asset(path, fit: BoxFit.cover);
+    return Image.asset(path, fit: BoxFit.cover, cacheWidth: 500);
   }
 }

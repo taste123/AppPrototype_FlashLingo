@@ -3,8 +3,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:learn/data/progress_manager.dart';
 import 'package:learn/ui/home_screen.dart';
 
+import 'package:flutter/services.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   final progressManager = await ProgressManager.init();
 
   runApp(MyApp(progressManager: progressManager));
