@@ -12,12 +12,11 @@ class AppBackground extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Opacity(
-            opacity: 0.55,
-            child: Image.asset(
-              'assets/background.png',
-              fit: BoxFit.cover,
-            ),
+          Image.asset(
+            'assets/background.png',
+            fit: BoxFit.cover,
+            color: const Color.fromRGBO(255, 255, 255, 0.55),
+            colorBlendMode: BlendMode.modulate,
           ),
           SafeArea(child: child),
         ],

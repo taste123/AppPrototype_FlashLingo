@@ -1,4 +1,6 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Reusable tactile press-scale widget implementing Apple Design response principle
 /// (Instant scale-down on pointer-down, spring return on release).
@@ -31,7 +33,7 @@ class _TactileScaleState extends State<TactileScale>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 100),
-      reverseDuration: const Duration(milliseconds: 180),
+      reverseDuration: const Duration(milliseconds: 220),
     );
     _scaleAnimation = Tween<double>(
       begin: 1.0,
@@ -40,7 +42,7 @@ class _TactileScaleState extends State<TactileScale>
       CurvedAnimation(
         parent: _controller,
         curve: Curves.easeOut,
-        reverseCurve: Curves.easeOutBack,
+        reverseCurve: Curves.elasticOut,
       ),
     );
   }
@@ -52,7 +54,10 @@ class _TactileScaleState extends State<TactileScale>
   }
 
   void _onTapDown(TapDownDetails details) {
-    if (!widget.disabled) _controller.forward();
+    if (!widget.disabled) {
+      HapticFeedback.lightImpact();
+      _controller.forward();
+    }
   }
 
   void _onTapUp(TapUpDetails details) {
@@ -174,3 +179,59 @@ class ChunkButton extends StatelessWidget {
     );
   }
 }
+
+/// Reusable shake animation widget for kids playful feedback on mistakes or locked items
+class ShakeWidget extends StatefulWidget {
+  final Widget child;
+  final double shakeOffset;
+  final Duration duration;
+
+  const ShakeWidget({
+    super.key,
+    required this.child,
+    this.shakeOffset = 6.0,
+    this.duration = const Duration(milliseconds: 350),
+  });
+
+  @override
+  State<ShakeWidget> createState() => ShakeWidgetState();
+}
+
+class ShakeWidgetState extends State<ShakeWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: widget.duration);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void shake() {
+    HapticFeedback.mediumImpact();
+    _controller.forward(from: 0.0);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final val = _controller.value;
+        final offset = sin(val * pi * 4) * widget.shakeOffset * (1.0 - val);
+        return Transform.translate(
+          offset: Offset(offset, 0),
+          child: child,
+        );
+      },
+      child: widget.child,
+    );
+  }
+}
+

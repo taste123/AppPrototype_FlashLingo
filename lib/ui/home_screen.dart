@@ -16,7 +16,29 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _floatController;
+  late Animation<double> _floatAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _floatController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2200),
+    )..repeat(reverse: true);
+    _floatAnimation = Tween<double>(begin: -5.0, end: 5.0).animate(
+      CurvedAnimation(parent: _floatController, curve: Curves.easeInOutSine),
+    );
+  }
+
+  @override
+  void dispose() {
+    _floatController.dispose();
+    super.dispose();
+  }
+
   Color _parseColor(String hexCode) {
     return Color(int.parse(hexCode.replaceFirst('#', '0xFF')));
   }
@@ -34,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     // Refresh progress when returning
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
@@ -51,10 +73,19 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 children: [
                   const SizedBox(height: 16),
-                  Image.asset(
-                    'assets/logo.png',
-                    height: 135,
-                    fit: BoxFit.contain,
+                  AnimatedBuilder(
+                    animation: _floatAnimation,
+                    builder: (context, child) {
+                      return Transform.translate(
+                        offset: Offset(0, _floatAnimation.value),
+                        child: child,
+                      );
+                    },
+                    child: Image.asset(
+                      'assets/newLogo.png',
+                      height: 135,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   _buildStarMeter(totalStars, maxStars),
@@ -73,13 +104,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   final passed = widget.progressManager.hasPassedLevel(cat.id);
                   final stars = widget.progressManager.getLevelStars(cat.id);
 
-                  return _CategoryCard(
-                    category: cat,
-                    unlocked: unlocked,
-                    passed: passed,
-                    stars: stars,
-                    color: _parseColor(cat.colorHex),
-                    onTap: () => _openCategory(cat),
+                  return TweenAnimationBuilder<double>(
+                    key: ValueKey('cat_${cat.id}'),
+                    tween: Tween<double>(begin: 0.0, end: 1.0),
+                    duration: Duration(
+                      milliseconds: 320 + (index * 45).clamp(0, 450),
+                    ),
+                    curve: Curves.easeOutBack,
+                    builder: (context, value, child) {
+                      return Transform.scale(scale: value, child: child);
+                    },
+                    child: _CategoryCard(
+                      category: cat,
+                      unlocked: unlocked,
+                      passed: passed,
+                      stars: stars,
+                      color: _parseColor(cat.colorHex),
+                      onTap: () => _openCategory(cat),
+                    ),
                   );
                 }, childCount: categoriesData.length),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -97,10 +139,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildStarMeter(int current, int max) {
+    final percent = max > 0 ? ((current / max) * 100).round() : 0;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withAlpha(235),
+        color: Colors.white.withAlpha(240),
         borderRadius: BorderRadius.circular(9999),
         border: Border.all(color: Colors.white, width: 2.5),
         boxShadow: const [
@@ -116,14 +159,30 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.star_rounded, color: Color(0xFFFFC93C), size: 22),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
           Text(
-            '$current / $max stars',
+            '$current / $max',
             style: const TextStyle(
               fontWeight: FontWeight.w900,
               fontSize: 15,
               color: Color(0xFF1F2937),
               letterSpacing: 0.2,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE8F5E9),
+              borderRadius: BorderRadius.circular(9999),
+            ),
+            child: Text(
+              '$percent%',
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 12,
+                color: Color(0xFF2E7D32),
+              ),
             ),
           ),
         ],
@@ -132,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _CategoryCard extends StatelessWidget {
+class _CategoryCard extends StatefulWidget {
   final Category category;
   final bool unlocked;
   final bool passed;
@@ -150,139 +209,161 @@ class _CategoryCard extends StatelessWidget {
   });
 
   @override
+  State<_CategoryCard> createState() => _CategoryCardState();
+}
+
+class _CategoryCardState extends State<_CategoryCard> {
+  final GlobalKey<ShakeWidgetState> _shakeKey = GlobalKey<ShakeWidgetState>();
+
+  void _handleTap() {
+    if (widget.unlocked) {
+      widget.onTap();
+    } else {
+      _shakeKey.currentState?.shake();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return TactileScale(
-      onTap: unlocked ? onTap : null,
-      disabled: !unlocked,
-      pressedScale: 0.94,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          // Outer card with white border
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white, width: 4),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color.fromRGBO(31, 41, 55, 0.28),
-                  offset: Offset(0, 10),
-                  blurRadius: 18,
-                  spreadRadius: -8,
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                width: double.infinity,
-                color: color,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: _buildImage(category.imagePath),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0),
-                      child: Column(
-                        children: [
-                          Text(
-                            category.level,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 14,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                          Text(
-                            category.name,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 11,
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+    return ShakeWidget(
+      key: _shakeKey,
+      shakeOffset: 7.0,
+      child: TactileScale(
+        onTap: _handleTap,
+        disabled: false,
+        pressedScale: 0.94,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // Outer card with white border
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.white, width: 4),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color.fromRGBO(31, 41, 55, 0.28),
+                    offset: Offset(0, 10),
+                    blurRadius: 18,
+                    spreadRadius: -8,
+                  ),
+                ],
               ),
-            ),
-          ),
-          // Lock overlay
-          if (!unlocked)
-            Positioned.fill(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
-                  color: const Color.fromRGBO(31, 41, 55, 0.28),
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color.fromRGBO(31, 41, 55, 0.25),
-                            offset: Offset(0, 6),
-                            blurRadius: 14,
-                            spreadRadius: -6,
-                          ),
-                        ],
+                  width: double.infinity,
+                  color: widget.color,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: _buildImage(widget.category.imagePath),
+                        ),
                       ),
-                      child: const Icon(
-                        Icons.lock,
-                        color: Color(0xFF1F2937),
-                        size: 32,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              widget.category.level,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 14,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            Text(
+                              widget.category.name,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 11,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // Lock overlay
+            if (!widget.unlocked)
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    color: const Color.fromRGBO(31, 41, 55, 0.28),
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Color.fromRGBO(31, 41, 55, 0.25),
+                              offset: Offset(0, 6),
+                              blurRadius: 14,
+                              spreadRadius: -6,
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.lock,
+                          color: Color(0xFF1F2937),
+                          size: 32,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          // Star badge
-          if (passed)
-            Positioned(
-              top: -8,
-              right: -8,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(9999),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color.fromRGBO(31, 41, 55, 0.25),
-                      offset: Offset(0, 6),
-                      blurRadius: 14,
-                      spreadRadius: -6,
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: List.generate(3, (index) {
-                    return Icon(
-                      Icons.star_rounded,
-                      size: 14,
-                      color: index < stars
-                          ? const Color(0xFFFFC93C)
-                          : const Color(0xFFDFE4EA),
-                    );
-                  }),
+            // Star badge
+            if (widget.passed)
+              Positioned(
+                top: -8,
+                right: -8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(9999),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color.fromRGBO(31, 41, 55, 0.25),
+                        offset: Offset(0, 6),
+                        blurRadius: 14,
+                        spreadRadius: -6,
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(3, (index) {
+                      return Icon(
+                        Icons.star_rounded,
+                        size: 14,
+                        color: index < widget.stars
+                            ? const Color(0xFFFFC93C)
+                            : const Color(0xFFDFE4EA),
+                      );
+                    }),
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
