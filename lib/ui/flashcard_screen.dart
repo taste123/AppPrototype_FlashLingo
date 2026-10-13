@@ -469,9 +469,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
     final idx = (itemIndex ?? _currentIndex).clamp(0, _vocabList.length - 1);
     final item = _vocabList[idx];
     // Slightly darken for back
-    final sideColor = isBack
-        ? Color.lerp(_catColor, const Color(0xFF64707D), 0.45)!
-        : _catColor;
+    final sideColor = _catColor;
 
     return Container(
       width: cardWidth,
@@ -515,7 +513,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                 clipBehavior: Clip.hardEdge,
                 child: _VocabImage(
                   imagePath: isBack ? (item.backImg ?? item.img) : item.img,
-                  isGrayscale: isBack,
+                  isGrayscale: false,
                 ),
               ),
             ),

@@ -82,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen>
                       );
                     },
                     child: Image.asset(
-                      'assets/logo.png',
+                      'assets/newLogo.png',
                       height: 135,
                       fit: BoxFit.contain,
                     ),
@@ -107,13 +107,12 @@ class _HomeScreenState extends State<HomeScreen>
                   return TweenAnimationBuilder<double>(
                     key: ValueKey('cat_${cat.id}'),
                     tween: Tween<double>(begin: 0.0, end: 1.0),
-                    duration: Duration(milliseconds: 320 + (index * 45).clamp(0, 450)),
+                    duration: Duration(
+                      milliseconds: 320 + (index * 45).clamp(0, 450),
+                    ),
                     curve: Curves.easeOutBack,
                     builder: (context, value, child) {
-                      return Transform.scale(
-                        scale: value,
-                        child: child,
-                      );
+                      return Transform.scale(scale: value, child: child);
                     },
                     child: _CategoryCard(
                       category: cat,
@@ -234,134 +233,137 @@ class _CategoryCardState extends State<_CategoryCard> {
         disabled: false,
         pressedScale: 0.94,
         child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          // Outer card with white border
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white, width: 4),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color.fromRGBO(31, 41, 55, 0.28),
-                  offset: Offset(0, 10),
-                  blurRadius: 18,
-                  spreadRadius: -8,
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                width: double.infinity,
-                color: widget.color,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: _buildImage(widget.category.imagePath),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0),
-                      child: Column(
-                        children: [
-                          Text(
-                            widget.category.level,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 14,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                          Text(
-                            widget.category.name,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 11,
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+          clipBehavior: Clip.none,
+          children: [
+            // Outer card with white border
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.white, width: 4),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color.fromRGBO(31, 41, 55, 0.28),
+                    offset: Offset(0, 10),
+                    blurRadius: 18,
+                    spreadRadius: -8,
+                  ),
+                ],
               ),
-            ),
-          ),
-          // Lock overlay
-          if (!widget.unlocked)
-            Positioned.fill(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
-                  color: const Color.fromRGBO(31, 41, 55, 0.28),
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color.fromRGBO(31, 41, 55, 0.25),
-                            offset: Offset(0, 6),
-                            blurRadius: 14,
-                            spreadRadius: -6,
-                          ),
-                        ],
+                  width: double.infinity,
+                  color: widget.color,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: _buildImage(widget.category.imagePath),
+                        ),
                       ),
-                      child: const Icon(
-                        Icons.lock,
-                        color: Color(0xFF1F2937),
-                        size: 32,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              widget.category.level,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 14,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            Text(
+                              widget.category.name,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 11,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // Lock overlay
+            if (!widget.unlocked)
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    color: const Color.fromRGBO(31, 41, 55, 0.28),
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Color.fromRGBO(31, 41, 55, 0.25),
+                              offset: Offset(0, 6),
+                              blurRadius: 14,
+                              spreadRadius: -6,
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.lock,
+                          color: Color(0xFF1F2937),
+                          size: 32,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          // Star badge
-          if (widget.passed)
-            Positioned(
-              top: -8,
-              right: -8,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(9999),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color.fromRGBO(31, 41, 55, 0.25),
-                      offset: Offset(0, 6),
-                      blurRadius: 14,
-                      spreadRadius: -6,
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: List.generate(3, (index) {
-                    return Icon(
-                      Icons.star_rounded,
-                      size: 14,
-                      color: index < widget.stars
-                          ? const Color(0xFFFFC93C)
-                          : const Color(0xFFDFE4EA),
-                    );
-                  }),
+            // Star badge
+            if (widget.passed)
+              Positioned(
+                top: -8,
+                right: -8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(9999),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color.fromRGBO(31, 41, 55, 0.25),
+                        offset: Offset(0, 6),
+                        blurRadius: 14,
+                        spreadRadius: -6,
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(3, (index) {
+                      return Icon(
+                        Icons.star_rounded,
+                        size: 14,
+                        color: index < widget.stars
+                            ? const Color(0xFFFFC93C)
+                            : const Color(0xFFDFE4EA),
+                      );
+                    }),
+                  ),
                 ),
               ),
-            ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
