@@ -1,16 +1,76 @@
 import 'models.dart';
 
 const List<Category> categoriesData = [
-  Category(id: 'B1', level: 'Level 1', name: 'Greetings', colorHex: '#8B5A2B', imagePath: 'assets/menu/greetings.png'),
-  Category(id: 'B2', level: 'Level 2', name: 'Colours', colorHex: '#B088CA', imagePath: 'assets/menu/colors.png'),
-  Category(id: 'B3', level: 'Level 3', name: 'Numbers', colorHex: '#F4A261', imagePath: 'assets/menu/numbers.png'),
-  Category(id: 'B4', level: 'Level 4', name: 'The body and the face', colorHex: '#A9D39E', imagePath: 'assets/body.png'),
-  Category(id: 'B5', level: 'Level 5', name: 'School', colorHex: '#7FB6D8', imagePath: 'assets/menu/school.png'),
-  Category(id: 'B6', level: 'Level 6', name: 'Clothes', colorHex: '#7FB6D8', imagePath: 'assets/clothes.png'),
-  Category(id: 'B7', level: 'Level 7', name: 'The home', colorHex: '#E76F51', imagePath: 'assets/home.svg'),
-  Category(id: 'B8', level: 'Level 8', name: 'Animals', colorHex: '#73C2C8', imagePath: 'assets/menu/animals.png'),
-  Category(id: 'B9', level: 'Level 9', name: 'Family & friends', colorHex: '#EB8B71', imagePath: 'assets/menu/familyFriends.png'),
-  Category(id: 'B10', level: 'Level 10', name: 'Time', colorHex: '#2A9D8F', imagePath: 'assets/menu/time.png'),
+  Category(
+    id: 'B1',
+    level: 'Level 1',
+    name: 'Greetings',
+    colorHex: '#8B5A2B',
+    imagePath: 'assets/menu/greetings.png',
+  ),
+  Category(
+    id: 'B2',
+    level: 'Level 2',
+    name: 'Colours',
+    colorHex: '#B088CA',
+    imagePath: 'assets/menu/colors.png',
+  ),
+  Category(
+    id: 'B3',
+    level: 'Level 3',
+    name: 'Numbers',
+    colorHex: '#F4A261',
+    imagePath: 'assets/menu/numbers.png',
+  ),
+  Category(
+    id: 'B4',
+    level: 'Level 4',
+    name: 'The body and the face',
+    colorHex: '#A9D39E',
+    imagePath: 'assets/level_cover/body.png',
+  ),
+  Category(
+    id: 'B5',
+    level: 'Level 5',
+    name: 'School',
+    colorHex: '#7FB6D8',
+    imagePath: 'assets/menu/school.png',
+  ),
+  Category(
+    id: 'B6',
+    level: 'Level 6',
+    name: 'Clothes',
+    colorHex: '#7FB6D8',
+    imagePath: 'assets/level_cover/clothes.png',
+  ),
+  Category(
+    id: 'B7',
+    level: 'Level 7',
+    name: 'The home',
+    colorHex: '#E76F51',
+    imagePath: 'assets/level_cover/home.svg',
+  ),
+  Category(
+    id: 'B8',
+    level: 'Level 8',
+    name: 'Animals',
+    colorHex: '#73C2C8',
+    imagePath: 'assets/menu/animals.png',
+  ),
+  Category(
+    id: 'B9',
+    level: 'Level 9',
+    name: 'Family & friends',
+    colorHex: '#EB8B71',
+    imagePath: 'assets/menu/familyFriends.png',
+  ),
+  Category(
+    id: 'B10',
+    level: 'Level 10',
+    name: 'Time',
+    colorHex: '#2A9D8F',
+    imagePath: 'assets/menu/time.png',
+  ),
 ];
 
 String dummyImg(String emoji) => 'dummy:$emoji';
@@ -142,7 +202,12 @@ final Map<String, List<VocabItem>> vocabularyData = {
   ],
   'B5': [
     //Sekolah
-    VocabItem(en: 'Book', id: 'Buku', img: dummyImg('📚')),
+    VocabItem(
+      en: 'Book',
+      id: 'Buku',
+      img: dummyImg('📚'),
+      backImg: 'assets/school/bisindo/buku.gif',
+    ),
     VocabItem(
       en: 'Pen',
       id: 'Pulpen',
@@ -161,7 +226,12 @@ final Map<String, List<VocabItem>> vocabularyData = {
       img: dummyImg('🪑'),
       backImg: 'assets/school/bisindo/kursi.gif',
     ),
-    VocabItem(en: 'Table', id: 'Meja', img: 'assets/school/img/table.svg'),
+    VocabItem(
+      en: 'Table',
+      id: 'Meja',
+      img: 'assets/school/img/table.svg',
+      backImg: 'assets/school/bisindo/meja.gif',
+    ),
     VocabItem(
       en: 'Teacher',
       id: 'Guru',
@@ -235,10 +305,30 @@ final Map<String, List<VocabItem>> vocabularyData = {
       img: dummyImg('👩'),
       backImg: 'assets/family/bisindo/ibu.gif',
     ),
-    VocabItem(en: 'Brother', id: 'Saudara laki-laki', img: dummyImg('👦')),
-    VocabItem(en: 'Sister', id: 'Saudara perempuan', img: dummyImg('👧')),
-    VocabItem(en: 'Grandfather', id: 'Kakek', img: dummyImg('👴')),
-    VocabItem(en: 'Grandmother', id: 'Nenek', img: dummyImg('👵')),
+    VocabItem(
+      en: 'Brother',
+      id: 'Saudara laki-laki',
+      img: dummyImg('👦'),
+      backImg: 'assets/family/bisindo/adek.gif',
+    ),
+    VocabItem(
+      en: 'Sister',
+      id: 'Saudara perempuan',
+      img: dummyImg('👧'),
+      backImg: 'assets/family/bisindo/kakak.gif',
+    ),
+    VocabItem(
+      en: 'Grandfather',
+      id: 'Kakek',
+      img: dummyImg('👴'),
+      backImg: 'assets/family/bisindo/kakek.gif',
+    ),
+    VocabItem(
+      en: 'Grandmother',
+      id: 'Nenek',
+      img: dummyImg('👵'),
+      backImg: 'assets/family/bisindo/nenek.gif',
+    ),
   ],
   'B10': [
     //Waktu
