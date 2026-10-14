@@ -11,6 +11,7 @@ const List<Category> categoriesData = [
   Category(id: 'B8', level: 'Level 8', name: 'Animals', colorHex: '#73C2C8', imagePath: 'assets/menu/animals.png'),
   Category(id: 'B9', level: 'Level 9', name: 'Family & friends', colorHex: '#EB8B71', imagePath: 'assets/menu/familyFriends.png'),
   Category(id: 'B10', level: 'Level 10', name: 'Time', colorHex: '#2A9D8F', imagePath: 'assets/menu/time.png'),
+
 ];
 
 String dummyImg(String emoji) => 'dummy:$emoji';
@@ -186,7 +187,12 @@ final Map<String, List<VocabItem>> vocabularyData = {
   ],
   'B5': [
     //Sekolah
-    VocabItem(en: 'Book', id: 'Buku', img: dummyImg('📚')),
+    VocabItem(
+      en: 'Book',
+      id: 'Buku',
+      img: dummyImg('📚'),
+      backImg: 'assets/school/bisindo/buku.gif',
+    ),
     VocabItem(
       en: 'Pen',
       id: 'Pulpen',
@@ -205,7 +211,12 @@ final Map<String, List<VocabItem>> vocabularyData = {
       img: dummyImg('🪑'),
       backImg: 'assets/school/bisindo/kursi.gif',
     ),
-    VocabItem(en: 'Table', id: 'Meja', img: 'assets/school/img/table.svg'),
+    VocabItem(
+      en: 'Table',
+      id: 'Meja',
+      img: 'assets/school/img/table.svg',
+      backImg: 'assets/school/bisindo/meja.gif',
+    ),
     VocabItem(
       en: 'Teacher',
       id: 'Guru',
@@ -279,10 +290,30 @@ final Map<String, List<VocabItem>> vocabularyData = {
       img: dummyImg('👩'),
       backImg: 'assets/family/bisindo/ibu.gif',
     ),
-    VocabItem(en: 'Brother', id: 'Saudara laki-laki', img: dummyImg('👦')),
-    VocabItem(en: 'Sister', id: 'Saudara perempuan', img: dummyImg('👧')),
-    VocabItem(en: 'Grandfather', id: 'Kakek', img: dummyImg('👴')),
-    VocabItem(en: 'Grandmother', id: 'Nenek', img: dummyImg('👵')),
+    VocabItem(
+      en: 'Brother',
+      id: 'Saudara laki-laki',
+      img: dummyImg('👦'),
+      backImg: 'assets/family/bisindo/adek.gif',
+    ),
+    VocabItem(
+      en: 'Sister',
+      id: 'Saudara perempuan',
+      img: dummyImg('👧'),
+      backImg: 'assets/family/bisindo/kakak.gif',
+    ),
+    VocabItem(
+      en: 'Grandfather',
+      id: 'Kakek',
+      img: dummyImg('👴'),
+      backImg: 'assets/family/bisindo/kakek.gif',
+    ),
+    VocabItem(
+      en: 'Grandmother',
+      id: 'Nenek',
+      img: dummyImg('👵'),
+      backImg: 'assets/family/bisindo/nenek.gif',
+    ),
   ],
   'B10': [
     //Waktu
