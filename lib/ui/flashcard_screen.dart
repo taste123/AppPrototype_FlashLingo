@@ -511,6 +511,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                   border: Border.all(color: Colors.white, width: 3),
                 ),
                 clipBehavior: Clip.hardEdge,
+                padding: const EdgeInsets.all(10),
                 child: _VocabImage(
                   imagePath: isBack ? (item.backImg ?? item.img) : item.img,
                   isGrayscale: false,
@@ -596,9 +597,9 @@ class _VocabImage extends StatelessWidget {
         child: Text(emoji, style: const TextStyle(fontSize: 80)),
       );
     } else if (imagePath.endsWith('.svg')) {
-      child = SvgPicture.asset(imagePath, fit: BoxFit.cover);
+      child = SvgPicture.asset(imagePath, fit: BoxFit.contain);
     } else {
-      child = Image.asset(imagePath, fit: BoxFit.cover, cacheWidth: 800);
+      child = Image.asset(imagePath, fit: BoxFit.contain, cacheWidth: 800);
     }
 
     if (isGrayscale) {
