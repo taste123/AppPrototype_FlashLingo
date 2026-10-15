@@ -66,26 +66,35 @@ flutter:
   assets:
     - assets/
     - assets/flashcardlevel1/
+    - assets/flashcardlevel1/img/
+    - assets/flashcardlevel1/bisindo/
     - assets/flashcardlevel2/
+    - assets/flashcardlevel2/img/
     - assets/flashcardlevel3/
+    - assets/flashcardlevel3/img/
+    - assets/flashcardlevel3/bisindo/
+    - assets/flashcardlevel4/
+    - assets/flashcardlevel4/img/
+    - assets/flashcardlevel5/
+    - assets/flashcardlevel5/img/
+    - assets/flashcardlevel5/bisindo/
+    - assets/flashcardlevel6/
+    - assets/flashcardlevel6/img/
+    - assets/flashcardlevel7/
+    - assets/flashcardlevel7/img/
+    - assets/flashcardlevel8/
+    - assets/flashcardlevel8/img/
+    - assets/flashcardlevel9/
+    - assets/flashcardlevel9/img/
+    - assets/flashcardlevel9/bisindo/
+    - assets/flashcardlevel10/
+    - assets/flashcardlevel10/img/
+    - assets/flashcardlevel10/bisindo/
     - assets/animal/
     - assets/animal/bisindo/
     - assets/animal/img/
-    - assets/body/
-    - assets/body/bisindo/
-    - assets/body/img/
-    - assets/family/
-    - assets/family/bisindo/
     - assets/level_cover/
     - assets/menu/
-    - assets/numbers/
-    - assets/numbers/bisindo/
-    - assets/numbers/img/
-    - assets/school/
-    - assets/school/bisindo/
-    - assets/school/img/
-    - assets/time/
-    - assets/time/bisindo/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

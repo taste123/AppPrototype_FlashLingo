@@ -60,6 +60,21 @@ class _FlashcardScreenState extends State<FlashcardScreen>
       vsync: this,
       duration: const Duration(milliseconds: 320),
     );
+    _precacheImages();
+  }
+
+  void _precacheImages() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      for (final item in _vocabList) {
+        final back = item.backImg ?? item.img;
+        for (final path in {item.img, back}) {
+          if (path.startsWith('dummy:')) continue;
+          if (path.endsWith('.svg')) continue;
+          precacheImage(AssetImage(path), context);
+        }
+      }
+    });
   }
 
   @override
@@ -488,93 +503,81 @@ class _FlashcardScreenState extends State<FlashcardScreen>
           ),
         ],
       ),
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 260),
-        switchInCurve: Curves.easeOutBack,
-        switchOutCurve: Curves.easeIn,
-        transitionBuilder: (child, anim) => FadeTransition(
-          opacity: anim,
-          child: ScaleTransition(
-            scale: Tween<double>(begin: 0.93, end: 1.0).animate(anim),
-            child: child,
-          ),
-        ),
-        child: Column(
-          key: ValueKey<String>('card_${idx}_$isBack'),
-          children: [
-            Expanded(
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white, width: 3),
-                ),
-                clipBehavior: Clip.hardEdge,
-                padding: const EdgeInsets.all(10),
-                child: _VocabImage(
-                  imagePath: isBack ? (item.backImg ?? item.img) : item.img,
-                  isGrayscale: false,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              (isBack ? 'Bahasa Indonesia' : 'English').toUpperCase(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 10,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.5,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              isBack ? item.id : item.en,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 32,
-                fontWeight: FontWeight.w900,
-                height: 1.1,
-                shadows: [
-                  Shadow(
-                    color: Color.fromRGBO(31, 41, 55, 0.18),
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      child: Column(
+        key: ValueKey<String>('card_${idx}_$isBack'),
+        children: [
+          Expanded(
+            child: Container(
+              width: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.black.withAlpha(24),
-                borderRadius: BorderRadius.circular(12),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white, width: 3),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.flip_camera_android_rounded,
-                    size: 12,
-                    color: Colors.white.withAlpha(210),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    isBack ? 'Tap to flip back' : 'Tap to flip',
-                    style: TextStyle(
-                      color: Colors.white.withAlpha(210),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                ],
+              clipBehavior: Clip.hardEdge,
+              padding: const EdgeInsets.all(10),
+              child: _VocabImage(
+                imagePath: isBack ? (item.backImg ?? item.img) : item.img,
+                isGrayscale: false,
               ),
             ),
-            const SizedBox(height: 6),
-          ],
-        ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            (isBack ? 'Bahasa Indonesia' : 'English').toUpperCase(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.5,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            isBack ? item.id : item.en,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 32,
+              fontWeight: FontWeight.w900,
+              height: 1.1,
+              shadows: [
+                Shadow(
+                  color: Color.fromRGBO(31, 41, 55, 0.18),
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+            decoration: BoxDecoration(
+              color: Colors.black.withAlpha(24),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.flip_camera_android_rounded,
+                  size: 12,
+                  color: Colors.white.withAlpha(210),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  isBack ? 'Tap to flip back' : 'Tap to flip',
+                  style: TextStyle(
+                    color: Colors.white.withAlpha(210),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+        ],
       ),
     );
   }
