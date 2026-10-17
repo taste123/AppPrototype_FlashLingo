@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -93,6 +94,9 @@ class _QuizScreenState extends State<QuizScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isTablet = size.shortestSide >= 600;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: AppBackground(
@@ -100,11 +104,20 @@ class _QuizScreenState extends State<QuizScreen> {
           children: [
             Column(
               children: [
-                _buildHeader(),
-                Expanded(child: _buildGameContent()),
+                _buildHeader(isTablet),
+                Expanded(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: isTablet ? 680 : double.infinity,
+                      ),
+                      child: _buildGameContent(isTablet),
+                    ),
+                  ),
+                ),
               ],
             ),
-            if (_showResult) _buildResultModal(),
+            if (_showResult) _buildResultModal(isTablet),
             Align(
               alignment: Alignment.topCenter,
               child: ConfettiWidget(
@@ -126,52 +139,67 @@ class _QuizScreenState extends State<QuizScreen> {
     );
   }
 
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-      child: Row(
-        children: [
-          RoundButton(
-            icon: Icons.chevron_left_rounded,
-            onPressed: () => Navigator.of(context).pop(),
+  Widget _buildHeader(bool isTablet) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: isTablet ? 680 : double.infinity,
+        ),
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: isTablet ? 24 : 16,
+            left: 16,
+            right: 16,
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 44),
-              child: Column(
-                children: [
-                  const Text(
-                    'QUIZ',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF4B5563),
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  Text(
-                    widget.category.name,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF1F2937),
-                    ),
-                  ),
-                ],
+          child: Row(
+            children: [
+              RoundButton(
+                icon: Icons.chevron_left_rounded,
+                onPressed: () => Navigator.of(context).pop(),
+                size: isTablet ? 52 : 44,
               ),
-            ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    right: isTablet ? 52 : 44,
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        'QUIZ',
+                        style: TextStyle(
+                          fontSize: isTablet ? 14 : 12,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF4B5563),
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      Text(
+                        widget.category.name,
+                        style: TextStyle(
+                          fontSize: isTablet ? 26 : 22,
+                          fontWeight: FontWeight.w900,
+                          color: const Color(0xFF1F2937),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildGameContent() {
+  Widget _buildGameContent(bool isTablet) {
     switch (_currentGame) {
       case Minigame.drag:
         return _DragGame(
           vocabList: widget.vocabList,
           catColor: _catColor,
+          isTablet: isTablet,
           onEnd: (firstTry, total) => _endQuiz(firstTry, total),
           onMistake: () => _mistakes++,
         );
@@ -179,6 +207,7 @@ class _QuizScreenState extends State<QuizScreen> {
         return _ScrambleGame(
           vocabList: widget.vocabList,
           catColor: _catColor,
+          isTablet: isTablet,
           onEnd: (firstTry, total) => _endQuiz(firstTry, total),
           onMistake: () => _mistakes++,
         );
@@ -186,13 +215,14 @@ class _QuizScreenState extends State<QuizScreen> {
         return _PickGame(
           vocabList: widget.vocabList,
           catColor: _catColor,
+          isTablet: isTablet,
           onEnd: (firstTry, total) => _endQuiz(firstTry, total),
           onMistake: () => _mistakes++,
         );
     }
   }
 
-  Widget _buildResultModal() {
+  Widget _buildResultModal(bool isTablet) {
     final stars = widget.progressManager.starsFromScore(_score);
     final passed = _score >= 7;
 
@@ -211,8 +241,8 @@ class _QuizScreenState extends State<QuizScreen> {
             child: child,
           ),
           child: Container(
-            width: 310,
-            padding: const EdgeInsets.all(26),
+            width: isTablet ? 390 : 310,
+            padding: EdgeInsets.all(isTablet ? 32 : 26),
             decoration: BoxDecoration(
               color: Colors.white.withAlpha(245),
               borderRadius: BorderRadius.circular(28),
@@ -246,7 +276,7 @@ class _QuizScreenState extends State<QuizScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: Icon(
                           Icons.star_rounded,
-                          size: 46,
+                          size: isTablet ? 54 : 46,
                           color: isEarned
                               ? const Color(0xFFFFC93C)
                               : const Color(0xFFE4E8EE),
@@ -255,45 +285,49 @@ class _QuizScreenState extends State<QuizScreen> {
                     );
                   }),
                 ),
-                const SizedBox(height: 12),
-                const Text(
+                SizedBox(height: isTablet ? 16 : 12),
+                Text(
                   'SCORE',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: isTablet ? 14 : 12,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF4B5563),
+                    color: const Color(0xFF4B5563),
                     letterSpacing: 1.2,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   '$_score / 9',
-                  style: const TextStyle(
-                    fontSize: 34,
+                  style: TextStyle(
+                    fontSize: isTablet ? 40 : 34,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF1F2937),
+                    color: const Color(0xFF1F2937),
                     letterSpacing: -0.5,
                   ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: isTablet ? 12 : 10),
                 Text(
                   passed
                       ? 'Great job! You earned $stars star${stars == 1 ? '' : 's'}. 🎉'
                       : 'Good try! Score 7 to earn a star. 💪',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 14,
+                  style: TextStyle(
+                    fontSize: isTablet ? 16 : 14,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF4B5563),
+                    color: const Color(0xFF4B5563),
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: isTablet ? 28 : 24),
                 ChunkButton(
                   text: 'Continue',
                   onPressed: () {
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                   backgroundColor: _catColor,
+                  fontSize: isTablet ? 19 : 17,
+                  padding: isTablet
+                      ? const EdgeInsets.symmetric(horizontal: 56, vertical: 16)
+                      : null,
                 ),
               ],
             ),
@@ -311,12 +345,14 @@ class _QuizScreenState extends State<QuizScreen> {
 class _DragGame extends StatefulWidget {
   final List<VocabItem> vocabList;
   final Color catColor;
+  final bool isTablet;
   final void Function(int firstTry, int total) onEnd;
   final VoidCallback onMistake;
 
   const _DragGame({
     required this.vocabList,
     required this.catColor,
+    this.isTablet = false,
     required this.onEnd,
     required this.onMistake,
   });
@@ -331,6 +367,9 @@ class _DragGameState extends State<_DragGame> {
   int _currentBatch = 0;
   final Set<VocabItem> _matched = {};
   final Set<VocabItem> _missedOnce = {};
+  final Set<VocabItem> _wrongTargets = {};
+  late List<GlobalKey<ShakeWidgetState>> _targetShakeKeys;
+  Timer? _wrongTimer;
   int _firstTryCount = 0;
 
   @override
@@ -338,6 +377,8 @@ class _DragGameState extends State<_DragGame> {
     super.initState();
     final shuffled = widget.vocabList.toList()..shuffle();
     _targets = shuffled.take(9).toList();
+    _targetShakeKeys =
+        List.generate(_targets.length, (_) => GlobalKey<ShakeWidgetState>());
 
     final trayItems = _targets.toList()..shuffle();
     _trayBatches = [];
@@ -351,19 +392,38 @@ class _DragGameState extends State<_DragGame> {
     }
   }
 
+  @override
+  void dispose() {
+    _wrongTimer?.cancel();
+    super.dispose();
+  }
+
   void _handleMatch(VocabItem target, VocabItem dropped) {
     if (_matched.contains(target)) return;
 
     if (target == dropped) {
       setState(() {
         _matched.add(target);
+        _wrongTargets.remove(target);
         if (!_missedOnce.contains(target)) _firstTryCount++;
       });
       _checkBatchComplete();
     } else {
+      final index = _targets.indexOf(target);
+      if (index >= 0 && index < _targetShakeKeys.length) {
+        _targetShakeKeys[index].currentState?.shake();
+      }
+      _wrongTimer?.cancel();
       setState(() {
+        _wrongTargets.add(target);
         _missedOnce.add(target);
         widget.onMistake();
+      });
+      _wrongTimer = Timer(const Duration(milliseconds: 1000), () {
+        if (!mounted) return;
+        setState(() {
+          _wrongTargets.remove(target);
+        });
       });
     }
   }
@@ -391,103 +451,141 @@ class _DragGameState extends State<_DragGame> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            padding: EdgeInsets.symmetric(
+              horizontal: widget.isTablet ? 22 : 16,
+              vertical: widget.isTablet ? 8 : 6,
+            ),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(9999),
             ),
             child: Text(
               '${_matched.length} / ${_targets.length} matched',
-              style: const TextStyle(fontWeight: FontWeight.w900),
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: widget.isTablet ? 15 : 13,
+              ),
             ),
           ),
         ),
         Expanded(
           child: GridView.builder(
-            padding: const EdgeInsets.all(16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            padding: EdgeInsets.symmetric(
+              horizontal: widget.isTablet ? 24 : 12,
+              vertical: widget.isTablet ? 12 : 8,
+            ),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
+              crossAxisSpacing: widget.isTablet ? 14 : 8,
+              mainAxisSpacing: widget.isTablet ? 14 : 8,
             ),
             itemCount: _targets.length,
             itemBuilder: (context, index) {
               final target = _targets[index];
               final isMatched = _matched.contains(target);
-              return DragTarget<VocabItem>(
-                onAcceptWithDetails: (details) =>
-                    _handleMatch(target, details.data),
-                builder: (context, candidateData, rejectedData) {
-                  return TweenAnimationBuilder<double>(
-                    key: ValueKey('matched_${target.en}_$isMatched'),
-                    tween: Tween<double>(begin: isMatched ? 0.8 : 1.0, end: 1.0),
-                    duration: const Duration(milliseconds: 350),
-                    curve: Curves.elasticOut,
-                    builder: (context, scale, child) => Transform.scale(
-                      scale: scale,
-                      child: child,
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: widget.catColor,
-                        borderRadius: BorderRadius.circular(16),
-                        border: isMatched
-                            ? Border.all(color: const Color(0xFF4CAF50), width: 4)
-                            : Border.all(color: Colors.white, width: 3),
-                        boxShadow: isMatched
-                            ? const [
-                                BoxShadow(
-                                  color: Color(0x664CAF50),
-                                  blurRadius: 10,
-                                  offset: Offset(0, 4),
-                                ),
-                              ]
-                            : null,
+              final isWrong = _wrongTargets.contains(target);
+              return ShakeWidget(
+                key: _targetShakeKeys[index],
+                shakeOffset: 6.0,
+                child: DragTarget<VocabItem>(
+                  onAcceptWithDetails: (details) =>
+                      _handleMatch(target, details.data),
+                  builder: (context, candidateData, rejectedData) {
+                    return TweenAnimationBuilder<double>(
+                      key: ValueKey('matched_${target.en}_$isMatched'),
+                      tween: Tween<double>(begin: isMatched ? 0.8 : 1.0, end: 1.0),
+                      duration: const Duration(milliseconds: 350),
+                      curve: Curves.elasticOut,
+                      builder: (context, scale, child) => Transform.scale(
+                        scale: scale,
+                        child: child,
                       ),
-                      padding: const EdgeInsets.all(6),
-                      child: _buildImage(target.img),
-                    ),
-                  );
-                },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        decoration: BoxDecoration(
+                          color: widget.catColor,
+                          borderRadius: BorderRadius.circular(widget.isTablet ? 20 : 16),
+                          border: isMatched
+                              ? Border.all(color: const Color(0xFF4CAF50), width: widget.isTablet ? 5 : 4)
+                              : isWrong
+                                  ? Border.all(color: const Color(0xFFE53935), width: widget.isTablet ? 5 : 4)
+                                  : Border.all(color: Colors.white, width: widget.isTablet ? 4 : 3),
+                          boxShadow: isMatched
+                              ? const [
+                                  BoxShadow(
+                                    color: Color(0x664CAF50),
+                                    blurRadius: 10,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ]
+                              : isWrong
+                                  ? const [
+                                      BoxShadow(
+                                        color: Color(0x66E53935),
+                                        blurRadius: 12,
+                                        offset: Offset(0, 4),
+                                      ),
+                                    ]
+                                  : null,
+                        ),
+                        padding: const EdgeInsets.all(4),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(widget.isTablet ? 16 : 12),
+                          child: _buildImage(target.img),
+                        ),
+                      ),
+                    );
+                  },
+                ),
               );
             },
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.only(bottom: 8),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
           child: Text(
             'Drag the words to the matching pictures.',
-            style: TextStyle(fontWeight: FontWeight.w700),
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: widget.isTablet ? 16 : 14,
+            ),
           ),
         ),
         Container(
-          height: 80,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: _trayBatches[_currentBatch]
-                .where((item) => !_matched.contains(item))
-                .map((item) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Draggable<VocabItem>(
-                      data: item,
-                      feedback: Transform.scale(
-                        scale: 1.1,
+          constraints: BoxConstraints(
+            minHeight: widget.isTablet ? 80 : 70,
+            maxHeight: widget.isTablet ? 100 : 85,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          alignment: Alignment.center,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: _trayBatches[_currentBatch]
+                  .where((item) => !_matched.contains(item))
+                  .map((item) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: widget.isTablet ? 6 : 4),
+                      child: Draggable<VocabItem>(
+                        data: item,
+                        feedback: Transform.scale(
+                          scale: 1.1,
+                          child: _buildTrayChip(item),
+                        ),
+                        childWhenDragging: Opacity(
+                          opacity: 0.25,
+                          child: _buildTrayChip(item),
+                        ),
                         child: _buildTrayChip(item),
                       ),
-                      childWhenDragging: Opacity(
-                        opacity: 0.25,
-                        child: _buildTrayChip(item),
-                      ),
-                      child: _buildTrayChip(item),
-                    ),
-                  );
-                })
-                .toList(),
+                    );
+                  })
+                  .toList(),
+            ),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: widget.isTablet ? 32 : 24),
       ],
     );
   }
@@ -496,21 +594,24 @@ class _DragGameState extends State<_DragGame> {
     return Material(
       color: Colors.transparent,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: EdgeInsets.symmetric(
+          horizontal: widget.isTablet ? 20 : 14,
+          vertical: widget.isTablet ? 13 : 10,
+        ),
         decoration: BoxDecoration(
           color: widget.catColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white, width: 3),
+          borderRadius: BorderRadius.circular(widget.isTablet ? 16 : 12),
+          border: Border.all(color: Colors.white, width: widget.isTablet ? 3.5 : 3),
           boxShadow: const [
             BoxShadow(color: Colors.black12, offset: Offset(0, 4)),
           ],
         ),
         child: Text(
           item.en,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w900,
-            fontSize: 16,
+            fontSize: widget.isTablet ? 19 : 16,
           ),
         ),
       ),
@@ -525,12 +626,14 @@ class _DragGameState extends State<_DragGame> {
 class _ScrambleGame extends StatefulWidget {
   final List<VocabItem> vocabList;
   final Color catColor;
+  final bool isTablet;
   final void Function(int firstTry, int total) onEnd;
   final VoidCallback onMistake;
 
   const _ScrambleGame({
     required this.vocabList,
     required this.catColor,
+    this.isTablet = false,
     required this.onEnd,
     required this.onMistake,
   });
@@ -545,11 +648,14 @@ class _ScrambleGameState extends State<_ScrambleGame> {
   int _firstTryCount = 0;
   bool _missedOnce = false;
 
+  late List<String> _words;
   late String _targetWord;
   late List<String> _letters;
   late List<bool> _used;
   late List<int> _answerSlots;
   late List<GlobalKey<ShakeWidgetState>> _letterShakeKeys;
+  int? _wrongLetterIndex;
+  Timer? _wrongLetterTimer;
 
   @override
   void initState() {
@@ -559,9 +665,19 @@ class _ScrambleGameState extends State<_ScrambleGame> {
     _initRound();
   }
 
+  @override
+  void dispose() {
+    _wrongLetterTimer?.cancel();
+    super.dispose();
+  }
+
   void _initRound() {
     _missedOnce = false;
-    _targetWord = _rounds[_currentRound].en.toUpperCase().replaceAll(RegExp(r'[\s\-_]'), '');
+    _wrongLetterIndex = null;
+    final rawEn = _rounds[_currentRound].en.trim().toUpperCase();
+    _words = rawEn.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+    if (_words.isEmpty) _words = [rawEn];
+    _targetWord = _words.join('').replaceAll(RegExp(r'[\-_]'), '');
     _letters = _targetWord.split('')..shuffle();
     while (_letters.join('') == _targetWord && _targetWord.length > 1) {
       _letters.shuffle();
@@ -606,6 +722,7 @@ class _ScrambleGameState extends State<_ScrambleGame> {
       setState(() {
         _used[index] = true;
         _answerSlots.add(index);
+        _wrongLetterIndex = null;
       });
 
       if (_answerSlots.length == _targetWord.length) {
@@ -626,9 +743,17 @@ class _ScrambleGameState extends State<_ScrambleGame> {
       if (index < _letterShakeKeys.length) {
         _letterShakeKeys[index].currentState?.shake();
       }
+      _wrongLetterTimer?.cancel();
       setState(() {
+        _wrongLetterIndex = index;
         _missedOnce = true;
         widget.onMistake();
+      });
+      _wrongLetterTimer = Timer(const Duration(milliseconds: 650), () {
+        if (!mounted) return;
+        setState(() {
+          if (_wrongLetterIndex == index) _wrongLetterIndex = null;
+        });
       });
     }
   }
@@ -644,6 +769,92 @@ class _ScrambleGameState extends State<_ScrambleGame> {
     });
   }
 
+  List<Widget> _buildWordSlotRows() {
+    final rows = <Widget>[];
+    int globalIndex = 0;
+    final maxLen = _words.fold<int>(0, (prev, w) => max(prev, w.length));
+    final double slotWidth = widget.isTablet
+        ? (maxLen <= 5 ? 54 : (maxLen <= 8 ? 46 : 38))
+        : (maxLen <= 5 ? 42 : (maxLen <= 8 ? 36 : 30));
+    final double slotHeight = widget.isTablet
+        ? (maxLen <= 5 ? 62 : (maxLen <= 8 ? 54 : 46))
+        : (maxLen <= 5 ? 48 : (maxLen <= 8 ? 44 : 38));
+    final double fontSize = widget.isTablet
+        ? (maxLen <= 5 ? 28 : (maxLen <= 8 ? 24 : 20))
+        : (maxLen <= 5 ? 22 : (maxLen <= 8 ? 19 : 16));
+
+    for (int w = 0; w < _words.length; w++) {
+      final word = _words[w].replaceAll(RegExp(r'[\-_]'), '');
+      final rowSlots = <Widget>[];
+      for (int l = 0; l < word.length; l++) {
+        final slotIdx = globalIndex;
+        rowSlots.add(_buildSlot(slotIdx, slotWidth, slotHeight, fontSize));
+        globalIndex++;
+      }
+      rows.add(
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: widget.isTablet ? 4 : 3),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: rowSlots,
+            ),
+          ),
+        ),
+      );
+    }
+    return rows;
+  }
+
+  Widget _buildSlot(
+      int i, double slotWidth, double slotHeight, double fontSize) {
+    final hasLetter = i < _answerSlots.length;
+    return GestureDetector(
+      onTap: hasLetter ? () => _undoSlot(i) : null,
+      child: TweenAnimationBuilder<double>(
+        key: ValueKey(
+            'slot_${i}_${hasLetter ? _letters[_answerSlots[i]] : 'empty'}'),
+        tween: Tween<double>(begin: hasLetter ? 0.7 : 1.0, end: 1.0),
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.elasticOut,
+        builder: (context, scale, child) => Transform.scale(
+          scale: scale,
+          child: child,
+        ),
+        child: Container(
+          width: slotWidth,
+          height: slotHeight,
+          margin: EdgeInsets.symmetric(horizontal: widget.isTablet ? 4 : 3),
+          decoration: BoxDecoration(
+            color: hasLetter ? widget.catColor : Colors.white,
+            borderRadius: BorderRadius.circular(widget.isTablet ? 14 : 10),
+            border: Border.all(
+              color: hasLetter ? Colors.white : widget.catColor,
+              width: widget.isTablet ? 3.0 : 2.5,
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Color.fromRGBO(31, 41, 55, 0.1),
+                offset: Offset(0, 3),
+                blurRadius: 6,
+              ),
+            ],
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            hasLetter ? _letters[_answerSlots[i]] : '',
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final current = _rounds[_currentRound];
@@ -652,7 +863,10 @@ class _ScrambleGameState extends State<_ScrambleGame> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            padding: EdgeInsets.symmetric(
+              horizontal: widget.isTablet ? 22 : 16,
+              vertical: widget.isTablet ? 8 : 6,
+            ),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(9999),
@@ -666,22 +880,23 @@ class _ScrambleGameState extends State<_ScrambleGame> {
             ),
             child: Text(
               '$_currentRound / ${_rounds.length} words',
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF1F2937),
+                color: const Color(0xFF1F2937),
+                fontSize: widget.isTablet ? 15 : 13,
               ),
             ),
           ),
         ),
-        const SizedBox(height: 16),
-        // Image Container with Blue background and White Border
+        SizedBox(height: widget.isTablet ? 14 : 10),
+        // Image Container with Blue background and White Border - Responsive size
         Container(
-          width: 100,
-          height: 100,
+          width: widget.isTablet ? 180 : 140,
+          height: widget.isTablet ? 180 : 140,
           decoration: BoxDecoration(
             color: const Color(0xFF7FB6D8),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white, width: 4),
+            borderRadius: BorderRadius.circular(widget.isTablet ? 26 : 20),
+            border: Border.all(color: Colors.white, width: widget.isTablet ? 5 : 4),
             boxShadow: const [
               BoxShadow(
                 color: Color.fromRGBO(31, 41, 55, 0.15),
@@ -690,13 +905,19 @@ class _ScrambleGameState extends State<_ScrambleGame> {
               ),
             ],
           ),
-          padding: const EdgeInsets.all(8),
-          child: _buildImage(current.img),
+          padding: EdgeInsets.all(widget.isTablet ? 8 : 6),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(widget.isTablet ? 18 : 14),
+            child: _buildImage(current.img),
+          ),
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: widget.isTablet ? 12 : 8),
         // Indonesian translation pill badge
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+          padding: EdgeInsets.symmetric(
+            horizontal: widget.isTablet ? 24 : 18,
+            vertical: widget.isTablet ? 7 : 5,
+          ),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(9999),
@@ -710,58 +931,72 @@ class _ScrambleGameState extends State<_ScrambleGame> {
           ),
           child: Text(
             current.id,
-            style: const TextStyle(
-              fontSize: 16,
+            style: TextStyle(
+              fontSize: widget.isTablet ? 18 : 15,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF1F2937),
+              color: const Color(0xFF1F2937),
             ),
           ),
         ),
-        const SizedBox(height: 24),
-        // Letter Slots Row
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(_targetWord.length, (i) {
-              final hasLetter = i < _answerSlots.length;
-              return GestureDetector(
-                onTap: hasLetter ? () => _undoSlot(i) : null,
-                child: TweenAnimationBuilder<double>(
-                  key: ValueKey('slot_${i}_${hasLetter ? _letters[_answerSlots[i]] : 'empty'}'),
-                  tween: Tween<double>(begin: hasLetter ? 0.7 : 1.0, end: 1.0),
-                  duration: const Duration(milliseconds: 260),
-                  curve: Curves.elasticOut,
-                  builder: (context, scale, child) => Transform.scale(
-                    scale: scale,
-                    child: child,
-                  ),
-                  child: Container(
-                    width: 44,
-                    height: 52,
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    decoration: BoxDecoration(
-                      color: hasLetter ? widget.catColor : Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: hasLetter ? Colors.white : widget.catColor,
-                        width: 2.5,
-                      ),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color.fromRGBO(31, 41, 55, 0.1),
-                          offset: Offset(0, 3),
-                          blurRadius: 6,
+        SizedBox(height: widget.isTablet ? 22 : 16),
+        // Letter Slots Layout (grouped by words, scaled to fit screen without scrolling)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _buildWordSlotRows(),
+          ),
+        ),
+        SizedBox(height: widget.isTablet ? 22 : 16),
+        // Scrambled Letter Tiles
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Wrap(
+            spacing: widget.isTablet ? 12 : 8,
+            runSpacing: widget.isTablet ? 12 : 8,
+            alignment: WrapAlignment.center,
+            children: List.generate(_letters.length, (i) {
+              final used = _used[i];
+              final isWrong = _wrongLetterIndex == i;
+              return ShakeWidget(
+                key: i < _letterShakeKeys.length ? _letterShakeKeys[i] : null,
+                shakeOffset: 6.0,
+                child: TactileScale(
+                  onTap: used ? null : () => _tapLetter(i),
+                  disabled: used,
+                  pressedScale: 0.9,
+                  child: Opacity(
+                    opacity: used ? 0.3 : 1.0,
+                    child: Container(
+                      width: widget.isTablet ? 58 : 48,
+                      height: widget.isTablet ? 64 : 52,
+                      decoration: BoxDecoration(
+                        color:
+                            isWrong ? const Color(0xFFE53935) : widget.catColor,
+                        borderRadius: BorderRadius.circular(widget.isTablet ? 16 : 12),
+                        border: Border.all(
+                          color:
+                              isWrong ? const Color(0xFFFFCDD2) : Colors.white,
+                          width: widget.isTablet ? 3.0 : 2.5,
                         ),
-                      ],
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      hasLetter ? _letters[_answerSlots[i]] : '',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: isWrong
+                                ? const Color(0x66E53935)
+                                : const Color.fromRGBO(31, 41, 55, 0.18),
+                            offset: const Offset(0, 4),
+                            blurRadius: isWrong ? 10 : 6,
+                          ),
+                        ],
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        _letters[i],
+                        style: TextStyle(
+                          fontSize: widget.isTablet ? 28 : 24,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -770,69 +1005,27 @@ class _ScrambleGameState extends State<_ScrambleGame> {
             }),
           ),
         ),
-        const SizedBox(height: 24),
-        // Scrambled Letter Tiles
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          alignment: WrapAlignment.center,
-          children: List.generate(_letters.length, (i) {
-            final used = _used[i];
-            return ShakeWidget(
-              key: i < _letterShakeKeys.length ? _letterShakeKeys[i] : null,
-              shakeOffset: 6.0,
-              child: TactileScale(
-                onTap: used ? null : () => _tapLetter(i),
-                disabled: used,
-                pressedScale: 0.9,
-                child: Opacity(
-                  opacity: used ? 0.3 : 1.0,
-                  child: Container(
-                    width: 48,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: widget.catColor,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white, width: 2.5),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color.fromRGBO(31, 41, 55, 0.18),
-                          offset: Offset(0, 4),
-                          blurRadius: 6,
-                        ),
-                      ],
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      _letters[i],
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          }),
-        ),
         const Spacer(),
         // Bottom Action Buttons: Shuffle and Hint
         Padding(
-          padding: const EdgeInsets.only(bottom: 24),
+          padding: EdgeInsets.only(bottom: widget.isTablet ? 32 : 24),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               GestureDetector(
                 onTap: _shuffleUnused,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: widget.isTablet ? 26 : 20,
+                    vertical: widget.isTablet ? 13 : 10,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(9999),
-                    border: Border.all(color: widget.catColor, width: 2.5),
+                    border: Border.all(
+                      color: widget.catColor,
+                      width: widget.isTablet ? 3.0 : 2.5,
+                    ),
                     boxShadow: const [
                       BoxShadow(
                         color: Color.fromRGBO(31, 41, 55, 0.12),
@@ -842,32 +1035,38 @@ class _ScrambleGameState extends State<_ScrambleGame> {
                     ],
                   ),
                   child: Row(
-                    children: const [
+                    children: [
                       Icon(Icons.autorenew_rounded,
-                          color: Color(0xFF1F2937), size: 20),
-                      SizedBox(width: 6),
+                          color: const Color(0xFF1F2937),
+                          size: widget.isTablet ? 24 : 20),
+                      const SizedBox(width: 6),
                       Text(
                         'Shuffle',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: widget.isTablet ? 16 : 14,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFF1F2937),
+                          color: const Color(0xFF1F2937),
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: widget.isTablet ? 22 : 16),
               GestureDetector(
                 onTap: _giveHint,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: widget.isTablet ? 26 : 20,
+                    vertical: widget.isTablet ? 13 : 10,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(9999),
-                    border: Border.all(color: widget.catColor, width: 2.5),
+                    border: Border.all(
+                      color: widget.catColor,
+                      width: widget.isTablet ? 3.0 : 2.5,
+                    ),
                     boxShadow: const [
                       BoxShadow(
                         color: Color.fromRGBO(31, 41, 55, 0.12),
@@ -877,16 +1076,17 @@ class _ScrambleGameState extends State<_ScrambleGame> {
                     ],
                   ),
                   child: Row(
-                    children: const [
+                    children: [
                       Icon(Icons.lightbulb_outline_rounded,
-                          color: Color(0xFF1F2937), size: 20),
-                      SizedBox(width: 6),
+                          color: const Color(0xFF1F2937),
+                          size: widget.isTablet ? 24 : 20),
+                      const SizedBox(width: 6),
                       Text(
                         'Hint',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: widget.isTablet ? 16 : 14,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFF1F2937),
+                          color: const Color(0xFF1F2937),
                         ),
                       ),
                     ],
@@ -908,12 +1108,14 @@ class _ScrambleGameState extends State<_ScrambleGame> {
 class _PickGame extends StatefulWidget {
   final List<VocabItem> vocabList;
   final Color catColor;
+  final bool isTablet;
   final void Function(int firstTry, int total) onEnd;
   final VoidCallback onMistake;
 
   const _PickGame({
     required this.vocabList,
     required this.catColor,
+    this.isTablet = false,
     required this.onEnd,
     required this.onMistake,
   });
@@ -930,6 +1132,7 @@ class _PickGameState extends State<_PickGame> {
 
   late List<VocabItem> _options;
   int? _correctPick;
+  final Set<int> _wrongPicks = {};
   final List<GlobalKey<ShakeWidgetState>> _shakeKeys =
       List.generate(4, (_) => GlobalKey<ShakeWidgetState>());
 
@@ -944,6 +1147,7 @@ class _PickGameState extends State<_PickGame> {
   void _initRound() {
     _missedOnce = false;
     _correctPick = null;
+    _wrongPicks.clear();
     final current = _rounds[_currentRound];
     final distractors = widget.vocabList.where((v) => v != current).toList()
       ..shuffle();
@@ -972,6 +1176,7 @@ class _PickGameState extends State<_PickGame> {
     } else {
       _shakeKeys[index].currentState?.shake();
       setState(() {
+        _wrongPicks.add(index);
         _missedOnce = true;
         widget.onMistake();
       });
@@ -986,7 +1191,10 @@ class _PickGameState extends State<_PickGame> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            padding: EdgeInsets.symmetric(
+              horizontal: widget.isTablet ? 22 : 16,
+              vertical: widget.isTablet ? 8 : 6,
+            ),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(9999),
@@ -1000,17 +1208,21 @@ class _PickGameState extends State<_PickGame> {
             ),
             child: Text(
               '$_currentRound / ${_rounds.length} found',
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF1F2937),
+                color: const Color(0xFF1F2937),
+                fontSize: widget.isTablet ? 15 : 13,
               ),
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: widget.isTablet ? 16 : 12),
         // Instruction Banner
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          padding: EdgeInsets.symmetric(
+            horizontal: widget.isTablet ? 26 : 20,
+            vertical: widget.isTablet ? 12 : 10,
+          ),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(9999),
@@ -1022,17 +1234,17 @@ class _PickGameState extends State<_PickGame> {
               ),
             ],
           ),
-          child: const Text(
+          child: Text(
             'Tap the picture that matches the word.',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: widget.isTablet ? 16 : 14,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF1F2937),
+              color: const Color(0xFF1F2937),
             ),
           ),
         ),
-        const SizedBox(height: 20),
-        // Prompt Card with AnimatedSwitcher
+        SizedBox(height: widget.isTablet ? 20 : 16),
+        // Prompt Card with AnimatedSwitcher (scaled to prevent overflowing on long words like Happy Birthday)
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 280),
           transitionBuilder: (child, anim) => ScaleTransition(
@@ -1043,11 +1255,15 @@ class _PickGameState extends State<_PickGame> {
           ),
           child: Container(
             key: ValueKey<String>('prompt_${current.en}'),
-            padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 14),
+            constraints: BoxConstraints(maxWidth: widget.isTablet ? 480 : 320),
+            padding: EdgeInsets.symmetric(
+              horizontal: widget.isTablet ? 36 : 24,
+              vertical: widget.isTablet ? 16 : 12,
+            ),
             decoration: BoxDecoration(
               color: widget.catColor,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white, width: 3.5),
+              borderRadius: BorderRadius.circular(widget.isTablet ? 28 : 24),
+              border: Border.all(color: Colors.white, width: widget.isTablet ? 4.5 : 3.5),
               boxShadow: const [
                 BoxShadow(
                   color: Color.fromRGBO(31, 41, 55, 0.18),
@@ -1056,30 +1272,37 @@ class _PickGameState extends State<_PickGame> {
                 ),
               ],
             ),
-            child: Text(
-              current.en,
-              style: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                current.en,
+                style: TextStyle(
+                  fontSize: widget.isTablet ? 38 : 30,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: widget.isTablet ? 24 : 20),
         // 2x2 Picture Cards Grid
         Expanded(
           child: GridView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            padding: EdgeInsets.symmetric(
+              horizontal: widget.isTablet ? 24 : 16,
+              vertical: widget.isTablet ? 12 : 8,
+            ),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 0.95,
+              crossAxisSpacing: widget.isTablet ? 20 : 14,
+              mainAxisSpacing: widget.isTablet ? 20 : 14,
+              childAspectRatio: widget.isTablet ? 1.0 : 0.95,
             ),
             itemCount: _options.length,
             itemBuilder: (context, index) {
               final isCorrect = _correctPick == index;
+              final isWrong = _wrongPicks.contains(index);
               return ShakeWidget(
                 key: _shakeKeys[index],
                 shakeOffset: 6.0,
@@ -1091,26 +1314,34 @@ class _PickGameState extends State<_PickGame> {
                     curve: Curves.easeOut,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(widget.isTablet ? 28 : 24),
                       border: Border.all(
-                        color: isCorrect ? const Color(0xFF4CAF50) : Colors.white,
-                        width: isCorrect ? 4.5 : 4,
+                        color: isCorrect
+                            ? const Color(0xFF4CAF50)
+                            : isWrong
+                                ? const Color(0xFFE53935)
+                                : Colors.white,
+                        width: isCorrect || isWrong
+                            ? (widget.isTablet ? 5.5 : 4.5)
+                            : (widget.isTablet ? 5 : 4),
                       ),
                       boxShadow: [
                         BoxShadow(
                           color: isCorrect
                               ? const Color(0x664CAF50)
-                              : const Color.fromRGBO(31, 41, 55, 0.18),
+                              : isWrong
+                                  ? const Color(0x66E53935)
+                                  : const Color.fromRGBO(31, 41, 55, 0.18),
                           offset: const Offset(0, 6),
-                          blurRadius: isCorrect ? 16 : 12,
+                          blurRadius: isCorrect || isWrong ? 16 : 12,
                         ),
                       ],
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(widget.isTablet ? 23 : 20),
                       child: Container(
                         color: const Color(0xFF7FB6D8),
-                        padding: const EdgeInsets.all(12),
+                        padding: EdgeInsets.all(widget.isTablet ? 8 : 6),
                         child: _buildImage(_options[index].img),
                       ),
                     ),

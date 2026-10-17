@@ -60,9 +60,19 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     final int totalStars = widget.progressManager.getTotalStars();
     final int maxStars = categoriesData.length * 3;
+    final size = MediaQuery.of(context).size;
+    final screenWidth = size.width;
+    final isTablet = size.shortestSide >= 600;
+
+    final int crossAxisCount = screenWidth >= 900 ? 4 : (isTablet ? 3 : 2);
+    final double maxContentWidth = crossAxisCount == 4 ? 920.0 : 700.0;
+    final double hPadding = isTablet
+        ? ((screenWidth - maxContentWidth) / 2).clamp(32.0, 300.0)
+        : 24.0;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -72,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen>
             SliverToBoxAdapter(
               child: Column(
                 children: [
-                  const SizedBox(height: 16),
+                  SizedBox(height: isTablet ? 24 : 16),
                   AnimatedBuilder(
                     animation: _floatAnimation,
                     builder: (context, child) {
@@ -83,18 +93,18 @@ class _HomeScreenState extends State<HomeScreen>
                     },
                     child: Image.asset(
                       'assets/newLogo.png',
-                      height: 135,
+                      height: isTablet ? 175 : 135,
                       fit: BoxFit.contain,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  _buildStarMeter(totalStars, maxStars),
-                  const SizedBox(height: 8),
+                  SizedBox(height: isTablet ? 20 : 16),
+                  _buildStarMeter(totalStars, maxStars, isTablet),
+                  SizedBox(height: isTablet ? 14 : 8),
                 ],
               ),
             ),
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: EdgeInsets.symmetric(horizontal: hPadding, vertical: 16),
               sliver: SliverGrid(
                 delegate: SliverChildBuilderDelegate((context, index) {
                   final cat = categoriesData[index];
@@ -120,14 +130,15 @@ class _HomeScreenState extends State<HomeScreen>
                       passed: passed,
                       stars: stars,
                       color: _parseColor(cat.colorHex),
+                      isTablet: isTablet,
                       onTap: () => _openCategory(cat),
                     ),
                   );
                 }, childCount: categoriesData.length),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 24,
-                  mainAxisSpacing: 24,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: isTablet ? 20 : 24,
+                  mainAxisSpacing: isTablet ? 20 : 24,
                   childAspectRatio: 1,
                 ),
               ),
@@ -138,14 +149,17 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildStarMeter(int current, int max) {
+  Widget _buildStarMeter(int current, int max, bool isTablet) {
     final percent = max > 0 ? ((current / max) * 100).round() : 0;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 22 : 16,
+        vertical: isTablet ? 10 : 8,
+      ),
       decoration: BoxDecoration(
         color: Colors.white.withAlpha(240),
         borderRadius: BorderRadius.circular(9999),
-        border: Border.all(color: Colors.white, width: 2.5),
+        border: Border.all(color: Colors.white, width: isTablet ? 3.0 : 2.5),
         boxShadow: const [
           BoxShadow(
             color: Color.fromRGBO(31, 41, 55, 0.15),
@@ -158,30 +172,34 @@ class _HomeScreenState extends State<HomeScreen>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.star_rounded, color: Color(0xFFFFC93C), size: 22),
-          const SizedBox(width: 6),
+          Icon(Icons.star_rounded,
+              color: const Color(0xFFFFC93C), size: isTablet ? 28 : 22),
+          const SizedBox(width: 8),
           Text(
             '$current / $max',
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w900,
-              fontSize: 15,
-              color: Color(0xFF1F2937),
+              fontSize: isTablet ? 18 : 15,
+              color: const Color(0xFF1F2937),
               letterSpacing: 0.2,
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+            padding: EdgeInsets.symmetric(
+              horizontal: isTablet ? 10 : 8,
+              vertical: isTablet ? 4 : 2.5,
+            ),
             decoration: BoxDecoration(
               color: const Color(0xFFE8F5E9),
               borderRadius: BorderRadius.circular(9999),
             ),
             child: Text(
               '$percent%',
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w900,
-                fontSize: 12,
-                color: Color(0xFF2E7D32),
+                fontSize: isTablet ? 14 : 12,
+                color: const Color(0xFF2E7D32),
               ),
             ),
           ),
@@ -197,6 +215,7 @@ class _CategoryCard extends StatefulWidget {
   final bool passed;
   final int stars;
   final Color color;
+  final bool isTablet;
   final VoidCallback onTap;
 
   const _CategoryCard({
@@ -205,6 +224,7 @@ class _CategoryCard extends StatefulWidget {
     required this.passed,
     required this.stars,
     required this.color,
+    this.isTablet = false,
     required this.onTap,
   });
 
@@ -225,6 +245,8 @@ class _CategoryCardState extends State<_CategoryCard> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = widget.isTablet;
+
     return ShakeWidget(
       key: _shakeKey,
       shakeOffset: 7.0,
@@ -239,8 +261,8 @@ class _CategoryCardState extends State<_CategoryCard> {
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.white, width: 4),
+                borderRadius: BorderRadius.circular(isTablet ? 28 : 24),
+                border: Border.all(color: Colors.white, width: isTablet ? 4.5 : 4),
                 boxShadow: const [
                   BoxShadow(
                     color: Color.fromRGBO(31, 41, 55, 0.28),
@@ -251,7 +273,7 @@ class _CategoryCardState extends State<_CategoryCard> {
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(isTablet ? 24 : 20),
                 child: Container(
                   width: double.infinity,
                   color: widget.color,
@@ -259,30 +281,30 @@ class _CategoryCardState extends State<_CategoryCard> {
                     children: [
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(isTablet ? 12.0 : 8.0),
                           child: _buildImage(widget.category.imagePath),
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
+                        padding: EdgeInsets.only(bottom: isTablet ? 14.0 : 10.0),
                         child: Column(
                           children: [
                             Text(
                               widget.category.level,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w900,
-                                fontSize: 14,
+                                fontSize: isTablet ? 16 : 14,
                                 letterSpacing: 0.5,
                               ),
                             ),
                             Text(
                               widget.category.name,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w700,
-                                fontSize: 11,
+                                fontSize: isTablet ? 13 : 11,
                                 letterSpacing: 0.2,
                               ),
                             ),
@@ -298,12 +320,12 @@ class _CategoryCardState extends State<_CategoryCard> {
             if (!widget.unlocked)
               Positioned.fill(
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(isTablet ? 24 : 20),
                   child: Container(
                     color: const Color.fromRGBO(31, 41, 55, 0.28),
                     child: Center(
                       child: Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: EdgeInsets.all(isTablet ? 12 : 8),
                         decoration: const BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
@@ -316,10 +338,10 @@ class _CategoryCardState extends State<_CategoryCard> {
                             ),
                           ],
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.lock,
-                          color: Color(0xFF1F2937),
-                          size: 32,
+                          color: const Color(0xFF1F2937),
+                          size: isTablet ? 38 : 32,
                         ),
                       ),
                     ),
@@ -329,12 +351,12 @@ class _CategoryCardState extends State<_CategoryCard> {
             // Star badge
             if (widget.passed)
               Positioned(
-                top: -8,
-                right: -8,
+                top: isTablet ? -10 : -8,
+                right: isTablet ? -10 : -8,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 4,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isTablet ? 8 : 6,
+                    vertical: isTablet ? 5 : 4,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -353,7 +375,7 @@ class _CategoryCardState extends State<_CategoryCard> {
                     children: List.generate(3, (index) {
                       return Icon(
                         Icons.star_rounded,
-                        size: 14,
+                        size: isTablet ? 17 : 14,
                         color: index < widget.stars
                             ? const Color(0xFFFFC93C)
                             : const Color(0xFFDFE4EA),

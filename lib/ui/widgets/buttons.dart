@@ -63,12 +63,17 @@ class _TactileScaleState extends State<TactileScale>
   void _onTapUp(TapUpDetails details) {
     if (!widget.disabled) {
       _controller.reverse();
-      widget.onTap?.call();
     }
   }
 
   void _onTapCancel() {
     if (!widget.disabled) _controller.reverse();
+  }
+
+  void _handleTap() {
+    if (!widget.disabled) {
+      widget.onTap?.call();
+    }
   }
 
   @override
@@ -77,6 +82,7 @@ class _TactileScaleState extends State<TactileScale>
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
       onTapCancel: _onTapCancel,
+      onTap: widget.disabled ? null : _handleTap,
       behavior: HitTestBehavior.opaque,
       child: ScaleTransition(
         scale: _scaleAnimation,
@@ -90,16 +96,21 @@ class RoundButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onPressed;
   final bool disabled;
+  final double size;
+  final double? iconSize;
 
   const RoundButton({
     super.key,
     required this.icon,
     required this.onPressed,
     this.disabled = false,
+    this.size = 44,
+    this.iconSize,
   });
 
   @override
   Widget build(BuildContext context) {
+    final effectiveIconSize = iconSize ?? (size * 0.55);
     return TactileScale(
       onTap: disabled ? null : onPressed,
       disabled: disabled,
@@ -107,8 +118,8 @@ class RoundButton extends StatelessWidget {
       child: Opacity(
         opacity: disabled ? 0.35 : 1.0,
         child: Container(
-          width: 44,
-          height: 44,
+          width: size,
+          height: size,
           decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.circle,
@@ -122,7 +133,8 @@ class RoundButton extends StatelessWidget {
             ],
           ),
           child: Center(
-            child: Icon(icon, color: const Color(0xFF1F2937), size: 24),
+            child: Icon(icon,
+                color: const Color(0xFF1F2937), size: effectiveIconSize),
           ),
         ),
       ),
@@ -135,6 +147,8 @@ class ChunkButton extends StatelessWidget {
   final VoidCallback onPressed;
   final Color backgroundColor;
   final bool disabled;
+  final EdgeInsetsGeometry? padding;
+  final double? fontSize;
 
   const ChunkButton({
     super.key,
@@ -142,6 +156,8 @@ class ChunkButton extends StatelessWidget {
     required this.onPressed,
     required this.backgroundColor,
     this.disabled = false,
+    this.padding,
+    this.fontSize,
   });
 
   @override
@@ -165,12 +181,13 @@ class ChunkButton extends StatelessWidget {
                   ),
                 ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 42, vertical: 14),
+        padding: padding ??
+            const EdgeInsets.symmetric(horizontal: 42, vertical: 14),
         child: Text(
           text,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 17,
+            fontSize: fontSize ?? 17,
             fontWeight: FontWeight.w900,
             letterSpacing: 0.8,
           ),

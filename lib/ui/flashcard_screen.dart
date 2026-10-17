@@ -159,16 +159,35 @@ class _FlashcardScreenState extends State<FlashcardScreen>
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final screenWidth = size.width;
+    final screenHeight = size.height;
+    final isTablet = size.shortestSide >= 600;
+
     final bool isLast = _currentIndex == _vocabList.length - 1;
     final bool showQuiz =
         isLast && !widget.progressManager.isComingSoonLevel(widget.category.id);
+
+    // Responsive card dimensions respecting both width and height bounds
+    final maxAllowedWidth = isTablet ? 450.0 : screenWidth * 0.78;
+    final maxAllowedHeight = screenHeight * (isTablet ? 0.54 : 0.60);
+
+    double cardWidth = maxAllowedWidth;
+    double cardHeight = cardWidth * 1.35;
+    if (cardHeight > maxAllowedHeight) {
+      cardHeight = maxAllowedHeight;
+      cardWidth = cardHeight / 1.35;
+    }
+
+    // Position navigation buttons shifted outwards near screen edges
+    final double navButtonMargin = isTablet ? 16.0 : 8.0;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: AppBackground(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(isTablet),
             Expanded(
               child: Stack(
                 alignment: Alignment.center,
@@ -178,43 +197,56 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                     onHorizontalDragEnd: (details) {
                       final velocity = details.primaryVelocity ?? 0;
                       if (velocity < -200) {
-                        _nextCard();
+                        if (isLast) {
+                          if (showQuiz) _startQuiz();
+                        } else {
+                          _nextCard();
+                        }
                       } else if (velocity > 200) {
                         _prevCard();
                       }
                     },
-                    child: _buildFlashcardStack(),
+                    child: _buildFlashcardStack(cardWidth, cardHeight, isTablet),
                   ),
-                  // Prev button — outside the card, at screen left
+                  // Prev button — positioned responsively
                   Positioned(
-                    left: 8,
+                    left: navButtonMargin,
                     child: RoundButton(
                       icon: Icons.chevron_left_rounded,
                       onPressed: _prevCard,
                       disabled: _currentIndex == 0 || _isTransitioning,
+                      size: isTablet ? 54 : 44,
                     ),
                   ),
-                  // Next button — outside the card, at screen right
+                  // Next button — positioned responsively
                   Positioned(
-                    right: 8,
+                    right: navButtonMargin,
                     child: RoundButton(
                       icon: Icons.chevron_right_rounded,
-                      onPressed: _nextCard,
-                      disabled: isLast || _isTransitioning,
+                      onPressed: () {
+                        if (_isTransitioning || _flipController.isAnimating) return;
+                        if (isLast) {
+                          if (showQuiz) _startQuiz();
+                        } else {
+                          _nextCard();
+                        }
+                      },
+                      disabled: (isLast && !showQuiz) || _isTransitioning,
+                      size: isTablet ? 54 : 44,
                     ),
                   ),
                 ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 32),
+              padding: EdgeInsets.symmetric(vertical: isTablet ? 36 : 28),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 6,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isTablet ? 22 : 16,
+                      vertical: isTablet ? 8 : 6,
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -229,23 +261,28 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                     ),
                     child: Text(
                       '${_currentIndex + 1} / ${_vocabList.length}',
-                      style: const TextStyle(
-                        fontSize: 18,
+                      style: TextStyle(
+                        fontSize: isTablet ? 20 : 18,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF1F2937),
+                        color: const Color(0xFF1F2937),
                         letterSpacing: 1.5,
                       ),
                     ),
                   ),
                   if (showQuiz) ...[
-                    const SizedBox(height: 16),
+                    SizedBox(height: isTablet ? 20 : 16),
                     ChunkButton(
                       text: 'Start Quiz',
                       onPressed: _startQuiz,
                       backgroundColor: _catColor,
+                      fontSize: isTablet ? 19 : 17,
+                      padding: isTablet
+                          ? const EdgeInsets.symmetric(
+                              horizontal: 56, vertical: 16)
+                          : null,
                     ),
                   ] else ...[
-                    const SizedBox(height: 16 + 50),
+                    SizedBox(height: isTablet ? 20 + 56 : 16 + 50),
                   ],
                 ],
               ),
@@ -256,59 +293,71 @@ class _FlashcardScreenState extends State<FlashcardScreen>
     );
   }
 
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-      child: Row(
-        children: [
-          RoundButton(
-            icon: Icons.chevron_left_rounded,
-            onPressed: () => Navigator.of(context).pop(),
+  Widget _buildHeader(bool isTablet) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: isTablet ? 720 : double.infinity,
+        ),
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: isTablet ? 24 : 16,
+            left: 16,
+            right: 16,
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 44), // balance back button
-              child: Column(
-                children: [
-                  Text(
-                    widget.category.level.toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF4B5563),
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  Text(
-                    widget.category.name,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF1F2937),
-                    ),
-                  ),
-                ],
+          child: Row(
+            children: [
+              RoundButton(
+                icon: Icons.chevron_left_rounded,
+                onPressed: () => Navigator.of(context).pop(),
+                size: isTablet ? 52 : 44,
               ),
-            ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    right: isTablet ? 52 : 44,
+                  ), // balance back button
+                  child: Column(
+                    children: [
+                      Text(
+                        widget.category.level.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: isTablet ? 14 : 12,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF4B5563),
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      Text(
+                        widget.category.name,
+                        style: TextStyle(
+                          fontSize: isTablet ? 26 : 22,
+                          fontWeight: FontWeight.w900,
+                          color: const Color(0xFF1F2937),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
   double _lerp(double a, double b, double t) => a + (b - a) * t;
 
-  Widget _buildFlashcardStack() {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final cardWidth = screenWidth * 0.78;
-    final cardHeight = cardWidth * 1.35;
-
+  Widget _buildFlashcardStack(
+      double cardWidth, double cardHeight, bool isTablet) {
     return SizedBox(
       width: cardWidth + 48,
       height: cardHeight + 24,
       child: AnimatedBuilder(
         animation: _slideController,
         builder: (context, _) {
+          final screenWidth = MediaQuery.of(context).size.width;
           final t = _slideController.value;
 
           Offset topOffset = Offset.zero;
@@ -397,6 +446,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                         isBack: false,
                         cardWidth: cardWidth,
                         cardHeight: cardHeight,
+                        isTablet: isTablet,
                         itemIndex: _currentIndex + 1,
                       ),
                     ),
@@ -439,16 +489,18 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                                             isBack: true,
                                             cardWidth: cardWidth,
                                             cardHeight: cardHeight,
+                                            isTablet: isTablet,
                                           ),
                                         )
                                       : _buildCardSide(
                                           isBack: false,
                                           cardWidth: cardWidth,
                                           cardHeight: cardHeight,
+                                          isTablet: isTablet,
                                         ),
                                   Positioned(
-                                    top: -12,
-                                    right: -12,
+                                    top: isTablet ? -14 : -12,
+                                    right: isTablet ? -14 : -12,
                                     child: isBack
                                         ? Transform(
                                             transform: Matrix4.identity()
@@ -479,6 +531,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
     required bool isBack,
     required double cardWidth,
     required double cardHeight,
+    bool isTablet = false,
     int? itemIndex,
   }) {
     final idx = (itemIndex ?? _currentIndex).clamp(0, _vocabList.length - 1);
@@ -489,11 +542,11 @@ class _FlashcardScreenState extends State<FlashcardScreen>
     return Container(
       width: cardWidth,
       height: cardHeight,
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(isTablet ? 16 : 12),
       decoration: BoxDecoration(
         color: sideColor,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white, width: 4),
+        borderRadius: BorderRadius.circular(isTablet ? 28 : 24),
+        border: Border.all(color: Colors.white, width: isTablet ? 4.5 : 4),
         boxShadow: const [
           BoxShadow(
             color: Color.fromRGBO(31, 41, 55, 0.35),
@@ -511,46 +564,52 @@ class _FlashcardScreenState extends State<FlashcardScreen>
               width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
                 border: Border.all(color: Colors.white, width: 3),
               ),
               clipBehavior: Clip.hardEdge,
-              padding: const EdgeInsets.all(10),
+              padding: EdgeInsets.all(isTablet ? 14 : 10),
               child: _VocabImage(
                 imagePath: isBack ? (item.backImg ?? item.img) : item.img,
                 isGrayscale: false,
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: isTablet ? 14 : 12),
           Text(
             (isBack ? 'Bahasa Indonesia' : 'English').toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
-              fontSize: 10,
+              fontSize: isTablet ? 12 : 10,
               fontWeight: FontWeight.w900,
               letterSpacing: 1.5,
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            isBack ? item.id : item.en,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.w900,
-              height: 1.1,
-              shadows: [
-                Shadow(
-                  color: Color.fromRGBO(31, 41, 55, 0.18),
-                  offset: Offset(0, 2),
-                ),
-              ],
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              isBack ? item.id : item.en,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: isTablet ? 36 : 32,
+                fontWeight: FontWeight.w900,
+                height: 1.1,
+                shadows: const [
+                  Shadow(
+                    color: Color.fromRGBO(31, 41, 55, 0.18),
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: isTablet ? 8 : 6),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+            padding: EdgeInsets.symmetric(
+              horizontal: isTablet ? 14 : 10,
+              vertical: isTablet ? 4.5 : 3,
+            ),
             decoration: BoxDecoration(
               color: Colors.black.withAlpha(24),
               borderRadius: BorderRadius.circular(12),
@@ -560,7 +619,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
               children: [
                 Icon(
                   Icons.flip_camera_android_rounded,
-                  size: 12,
+                  size: isTablet ? 14 : 12,
                   color: Colors.white.withAlpha(210),
                 ),
                 const SizedBox(width: 4),
@@ -568,7 +627,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                   isBack ? 'Tap to flip back' : 'Tap to flip',
                   style: TextStyle(
                     color: Colors.white.withAlpha(210),
-                    fontSize: 11,
+                    fontSize: isTablet ? 12 : 11,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.3,
                   ),
@@ -576,7 +635,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
               ],
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: isTablet ? 8 : 6),
         ],
       ),
     );
