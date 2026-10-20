@@ -56,8 +56,9 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _pickNextGame() {
-    final gameStr =
-        widget.progressManager.getOrAssignGameForLevel(widget.category.id);
+    final gameStr = widget.progressManager.getOrAssignGameForLevel(
+      widget.category.id,
+    );
     switch (gameStr) {
       case 'drag':
         _currentGame = Minigame.drag;
@@ -142,9 +143,7 @@ class _QuizScreenState extends State<QuizScreen> {
   Widget _buildHeader(bool isTablet) {
     return Center(
       child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: isTablet ? 680 : double.infinity,
-        ),
+        constraints: BoxConstraints(maxWidth: isTablet ? 680 : double.infinity),
         child: Padding(
           padding: EdgeInsets.only(
             top: isTablet ? 24 : 16,
@@ -160,9 +159,7 @@ class _QuizScreenState extends State<QuizScreen> {
               ),
               Expanded(
                 child: Padding(
-                  padding: EdgeInsets.only(
-                    right: isTablet ? 52 : 44,
-                  ),
+                  padding: EdgeInsets.only(right: isTablet ? 52 : 44),
                   child: Column(
                     children: [
                       Text(
@@ -236,10 +233,8 @@ class _QuizScreenState extends State<QuizScreen> {
           tween: Tween<double>(begin: 0.5, end: 1.0),
           duration: const Duration(milliseconds: 550),
           curve: Curves.elasticOut,
-          builder: (context, scale, child) => Transform.scale(
-            scale: scale,
-            child: child,
-          ),
+          builder: (context, scale, child) =>
+              Transform.scale(scale: scale, child: child),
           child: Container(
             width: isTablet ? 390 : 310,
             padding: EdgeInsets.all(isTablet ? 32 : 26),
@@ -267,10 +262,7 @@ class _QuizScreenState extends State<QuizScreen> {
                       duration: Duration(milliseconds: 400 + (index * 180)),
                       curve: Curves.elasticOut,
                       builder: (context, starScale, child) {
-                        return Transform.scale(
-                          scale: starScale,
-                          child: child,
-                        );
+                        return Transform.scale(scale: starScale, child: child);
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -377,8 +369,10 @@ class _DragGameState extends State<_DragGame> {
     super.initState();
     final shuffled = widget.vocabList.toList()..shuffle();
     _targets = shuffled.take(9).toList();
-    _targetShakeKeys =
-        List.generate(_targets.length, (_) => GlobalKey<ShakeWidgetState>());
+    _targetShakeKeys = List.generate(
+      _targets.length,
+      (_) => GlobalKey<ShakeWidgetState>(),
+    );
 
     final trayItems = _targets.toList()..shuffle();
     _trayBatches = [];
@@ -493,23 +487,35 @@ class _DragGameState extends State<_DragGame> {
                   builder: (context, candidateData, rejectedData) {
                     return TweenAnimationBuilder<double>(
                       key: ValueKey('matched_${target.en}_$isMatched'),
-                      tween: Tween<double>(begin: isMatched ? 0.8 : 1.0, end: 1.0),
+                      tween: Tween<double>(
+                        begin: isMatched ? 0.8 : 1.0,
+                        end: 1.0,
+                      ),
                       duration: const Duration(milliseconds: 350),
                       curve: Curves.elasticOut,
-                      builder: (context, scale, child) => Transform.scale(
-                        scale: scale,
-                        child: child,
-                      ),
+                      builder: (context, scale, child) =>
+                          Transform.scale(scale: scale, child: child),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         decoration: BoxDecoration(
                           color: widget.catColor,
-                          borderRadius: BorderRadius.circular(widget.isTablet ? 20 : 16),
+                          borderRadius: BorderRadius.circular(
+                            widget.isTablet ? 20 : 16,
+                          ),
                           border: isMatched
-                              ? Border.all(color: const Color(0xFF4CAF50), width: widget.isTablet ? 5 : 4)
+                              ? Border.all(
+                                  color: const Color(0xFF4CAF50),
+                                  width: widget.isTablet ? 5 : 4,
+                                )
                               : isWrong
-                                  ? Border.all(color: const Color(0xFFE53935), width: widget.isTablet ? 5 : 4)
-                                  : Border.all(color: Colors.white, width: widget.isTablet ? 4 : 3),
+                              ? Border.all(
+                                  color: const Color(0xFFE53935),
+                                  width: widget.isTablet ? 5 : 4,
+                                )
+                              : Border.all(
+                                  color: Colors.white,
+                                  width: widget.isTablet ? 4 : 3,
+                                ),
                           boxShadow: isMatched
                               ? const [
                                   BoxShadow(
@@ -519,18 +525,20 @@ class _DragGameState extends State<_DragGame> {
                                   ),
                                 ]
                               : isWrong
-                                  ? const [
-                                      BoxShadow(
-                                        color: Color(0x66E53935),
-                                        blurRadius: 12,
-                                        offset: Offset(0, 4),
-                                      ),
-                                    ]
-                                  : null,
+                              ? const [
+                                  BoxShadow(
+                                    color: Color(0x66E53935),
+                                    blurRadius: 12,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ]
+                              : null,
                         ),
                         padding: const EdgeInsets.all(4),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(widget.isTablet ? 16 : 12),
+                          borderRadius: BorderRadius.circular(
+                            widget.isTablet ? 16 : 12,
+                          ),
                           child: _buildImage(target.img),
                         ),
                       ),
@@ -566,7 +574,9 @@ class _DragGameState extends State<_DragGame> {
                   .where((item) => !_matched.contains(item))
                   .map((item) {
                     return Padding(
-                      padding: EdgeInsets.symmetric(horizontal: widget.isTablet ? 6 : 4),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: widget.isTablet ? 6 : 4,
+                      ),
                       child: Draggable<VocabItem>(
                         data: item,
                         feedback: Transform.scale(
@@ -601,7 +611,10 @@ class _DragGameState extends State<_DragGame> {
         decoration: BoxDecoration(
           color: widget.catColor,
           borderRadius: BorderRadius.circular(widget.isTablet ? 16 : 12),
-          border: Border.all(color: Colors.white, width: widget.isTablet ? 3.5 : 3),
+          border: Border.all(
+            color: Colors.white,
+            width: widget.isTablet ? 3.5 : 3,
+          ),
           boxShadow: const [
             BoxShadow(color: Colors.black12, offset: Offset(0, 4)),
           ],
@@ -654,12 +667,16 @@ class _ScrambleGameState extends State<_ScrambleGame> {
   late List<bool> _used;
   late List<int> _answerSlots;
   late List<GlobalKey<ShakeWidgetState>> _letterShakeKeys;
+  final GlobalKey<ShakeWidgetState> _hintShakeKey =
+      GlobalKey<ShakeWidgetState>();
+  int _remainingHints = 3;
   int? _wrongLetterIndex;
   Timer? _wrongLetterTimer;
 
   @override
   void initState() {
     super.initState();
+    _remainingHints = 3;
     _rounds = widget.vocabList.toList()..shuffle();
     if (_rounds.length > 6) _rounds = _rounds.sublist(0, 6);
     _initRound();
@@ -684,8 +701,10 @@ class _ScrambleGameState extends State<_ScrambleGame> {
     }
     _used = List.filled(_letters.length, false);
     _answerSlots = [];
-    _letterShakeKeys =
-        List.generate(_letters.length, (_) => GlobalKey<ShakeWidgetState>());
+    _letterShakeKeys = List.generate(
+      _letters.length,
+      (_) => GlobalKey<ShakeWidgetState>(),
+    );
   }
 
   void _shuffleUnused() {
@@ -695,8 +714,8 @@ class _ScrambleGameState extends State<_ScrambleGame> {
         if (!_used[i]) unusedIndices.add(i);
       }
       if (unusedIndices.length <= 1) return;
-      final unusedLetters =
-          unusedIndices.map((i) => _letters[i]).toList()..shuffle();
+      final unusedLetters = unusedIndices.map((i) => _letters[i]).toList()
+        ..shuffle();
       for (int i = 0; i < unusedIndices.length; i++) {
         _letters[unusedIndices[i]] = unusedLetters[i];
       }
@@ -704,10 +723,17 @@ class _ScrambleGameState extends State<_ScrambleGame> {
   }
 
   void _giveHint() {
+    if (_remainingHints <= 0) {
+      _hintShakeKey.currentState?.shake();
+      return;
+    }
     if (_answerSlots.length >= _targetWord.length) return;
     final expectedChar = _targetWord[_answerSlots.length];
     for (int i = 0; i < _letters.length; i++) {
       if (!_used[i] && _letters[i] == expectedChar) {
+        setState(() {
+          _remainingHints--;
+        });
         _tapLetter(i);
         break;
       }
@@ -808,20 +834,23 @@ class _ScrambleGameState extends State<_ScrambleGame> {
   }
 
   Widget _buildSlot(
-      int i, double slotWidth, double slotHeight, double fontSize) {
+    int i,
+    double slotWidth,
+    double slotHeight,
+    double fontSize,
+  ) {
     final hasLetter = i < _answerSlots.length;
     return GestureDetector(
       onTap: hasLetter ? () => _undoSlot(i) : null,
       child: TweenAnimationBuilder<double>(
         key: ValueKey(
-            'slot_${i}_${hasLetter ? _letters[_answerSlots[i]] : 'empty'}'),
+          'slot_${i}_${hasLetter ? _letters[_answerSlots[i]] : 'empty'}',
+        ),
         tween: Tween<double>(begin: hasLetter ? 0.7 : 1.0, end: 1.0),
         duration: const Duration(milliseconds: 260),
         curve: Curves.elasticOut,
-        builder: (context, scale, child) => Transform.scale(
-          scale: scale,
-          child: child,
-        ),
+        builder: (context, scale, child) =>
+            Transform.scale(scale: scale, child: child),
         child: Container(
           width: slotWidth,
           height: slotHeight,
@@ -896,7 +925,10 @@ class _ScrambleGameState extends State<_ScrambleGame> {
           decoration: BoxDecoration(
             color: const Color(0xFF7FB6D8),
             borderRadius: BorderRadius.circular(widget.isTablet ? 26 : 20),
-            border: Border.all(color: Colors.white, width: widget.isTablet ? 5 : 4),
+            border: Border.all(
+              color: Colors.white,
+              width: widget.isTablet ? 5 : 4,
+            ),
             boxShadow: const [
               BoxShadow(
                 color: Color.fromRGBO(31, 41, 55, 0.15),
@@ -971,12 +1003,16 @@ class _ScrambleGameState extends State<_ScrambleGame> {
                       width: widget.isTablet ? 58 : 48,
                       height: widget.isTablet ? 64 : 52,
                       decoration: BoxDecoration(
-                        color:
-                            isWrong ? const Color(0xFFE53935) : widget.catColor,
-                        borderRadius: BorderRadius.circular(widget.isTablet ? 16 : 12),
+                        color: isWrong
+                            ? const Color(0xFFE53935)
+                            : widget.catColor,
+                        borderRadius: BorderRadius.circular(
+                          widget.isTablet ? 16 : 12,
+                        ),
                         border: Border.all(
-                          color:
-                              isWrong ? const Color(0xFFFFCDD2) : Colors.white,
+                          color: isWrong
+                              ? const Color(0xFFFFCDD2)
+                              : Colors.white,
                           width: widget.isTablet ? 3.0 : 2.5,
                         ),
                         boxShadow: [
@@ -1036,9 +1072,11 @@ class _ScrambleGameState extends State<_ScrambleGame> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.autorenew_rounded,
-                          color: const Color(0xFF1F2937),
-                          size: widget.isTablet ? 24 : 20),
+                      Icon(
+                        Icons.autorenew_rounded,
+                        color: const Color(0xFF1F2937),
+                        size: widget.isTablet ? 24 : 20,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         'Shuffle',
@@ -1053,43 +1091,56 @@ class _ScrambleGameState extends State<_ScrambleGame> {
                 ),
               ),
               SizedBox(width: widget.isTablet ? 22 : 16),
-              GestureDetector(
-                onTap: _giveHint,
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: widget.isTablet ? 26 : 20,
-                    vertical: widget.isTablet ? 13 : 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(9999),
-                    border: Border.all(
-                      color: widget.catColor,
-                      width: widget.isTablet ? 3.0 : 2.5,
+              ShakeWidget(
+                key: _hintShakeKey,
+                child: GestureDetector(
+                  onTap: _giveHint,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: widget.isTablet ? 26 : 20,
+                      vertical: widget.isTablet ? 13 : 10,
                     ),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color.fromRGBO(31, 41, 55, 0.12),
-                        offset: Offset(0, 4),
-                        blurRadius: 8,
+                    decoration: BoxDecoration(
+                      color: _remainingHints > 0
+                          ? Colors.white
+                          : const Color(0xFFF9FAFB),
+                      borderRadius: BorderRadius.circular(9999),
+                      border: Border.all(
+                        color: _remainingHints > 0
+                            ? widget.catColor
+                            : const Color(0xFFD1D5DB),
+                        width: widget.isTablet ? 3.0 : 2.5,
                       ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.lightbulb_outline_rounded,
-                          color: const Color(0xFF1F2937),
-                          size: widget.isTablet ? 24 : 20),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Hint',
-                        style: TextStyle(
-                          fontSize: widget.isTablet ? 16 : 14,
-                          fontWeight: FontWeight.w900,
-                          color: const Color(0xFF1F2937),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color.fromRGBO(31, 41, 55, 0.12),
+                          offset: Offset(0, 4),
+                          blurRadius: 8,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.lightbulb_outline_rounded,
+                          color: _remainingHints > 0
+                              ? const Color(0xFF1F2937)
+                              : const Color(0xFF9CA3AF),
+                          size: widget.isTablet ? 24 : 20,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Hint ($_remainingHints)',
+                          style: TextStyle(
+                            fontSize: widget.isTablet ? 16 : 14,
+                            fontWeight: FontWeight.w900,
+                            color: _remainingHints > 0
+                                ? const Color(0xFF1F2937)
+                                : const Color(0xFF9CA3AF),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -1133,8 +1184,10 @@ class _PickGameState extends State<_PickGame> {
   late List<VocabItem> _options;
   int? _correctPick;
   final Set<int> _wrongPicks = {};
-  final List<GlobalKey<ShakeWidgetState>> _shakeKeys =
-      List.generate(4, (_) => GlobalKey<ShakeWidgetState>());
+  final List<GlobalKey<ShakeWidgetState>> _shakeKeys = List.generate(
+    4,
+    (_) => GlobalKey<ShakeWidgetState>(),
+  );
 
   @override
   void initState() {
@@ -1248,9 +1301,10 @@ class _PickGameState extends State<_PickGame> {
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 280),
           transitionBuilder: (child, anim) => ScaleTransition(
-            scale: Tween<double>(begin: 0.88, end: 1.0).animate(
-              CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
-            ),
+            scale: Tween<double>(
+              begin: 0.88,
+              end: 1.0,
+            ).animate(CurvedAnimation(parent: anim, curve: Curves.easeOutBack)),
             child: FadeTransition(opacity: anim, child: child),
           ),
           child: Container(
@@ -1263,7 +1317,10 @@ class _PickGameState extends State<_PickGame> {
             decoration: BoxDecoration(
               color: widget.catColor,
               borderRadius: BorderRadius.circular(widget.isTablet ? 28 : 24),
-              border: Border.all(color: Colors.white, width: widget.isTablet ? 4.5 : 3.5),
+              border: Border.all(
+                color: Colors.white,
+                width: widget.isTablet ? 4.5 : 3.5,
+              ),
               boxShadow: const [
                 BoxShadow(
                   color: Color.fromRGBO(31, 41, 55, 0.18),
@@ -1314,13 +1371,15 @@ class _PickGameState extends State<_PickGame> {
                     curve: Curves.easeOut,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(widget.isTablet ? 28 : 24),
+                      borderRadius: BorderRadius.circular(
+                        widget.isTablet ? 28 : 24,
+                      ),
                       border: Border.all(
                         color: isCorrect
                             ? const Color(0xFF4CAF50)
                             : isWrong
-                                ? const Color(0xFFE53935)
-                                : Colors.white,
+                            ? const Color(0xFFE53935)
+                            : Colors.white,
                         width: isCorrect || isWrong
                             ? (widget.isTablet ? 5.5 : 4.5)
                             : (widget.isTablet ? 5 : 4),
@@ -1330,15 +1389,17 @@ class _PickGameState extends State<_PickGame> {
                           color: isCorrect
                               ? const Color(0x664CAF50)
                               : isWrong
-                                  ? const Color(0x66E53935)
-                                  : const Color.fromRGBO(31, 41, 55, 0.18),
+                              ? const Color(0x66E53935)
+                              : const Color.fromRGBO(31, 41, 55, 0.18),
                           offset: const Offset(0, 6),
                           blurRadius: isCorrect || isWrong ? 16 : 12,
                         ),
                       ],
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(widget.isTablet ? 23 : 20),
+                      borderRadius: BorderRadius.circular(
+                        widget.isTablet ? 23 : 20,
+                      ),
                       child: Container(
                         color: const Color(0xFF7FB6D8),
                         padding: EdgeInsets.all(widget.isTablet ? 8 : 6),

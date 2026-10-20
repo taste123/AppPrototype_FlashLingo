@@ -1,4 +1,4 @@
-package com.example.learn
+package com.flashlingo.id.app
 
 import io.flutter.embedding.android.FlutterActivity
 
